@@ -168,13 +168,13 @@ func (s *AuthService) Login(identificationNumber string, password string) (refre
 
 	s.logger.Info("USER: ", user)
 
-	refreshToken, err = s.tokenBuildRefresh(user.IdNumber)
+	refreshToken, err = s.tokenBuildRefresh(user.TCKN)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return "", "", err
 	}
 
-	accessToken, err = s.TokenBuildAccess(user.IdNumber)
+	accessToken, err = s.TokenBuildAccess(user.TCKN)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return "", "", err
