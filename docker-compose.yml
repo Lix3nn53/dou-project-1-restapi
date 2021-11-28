@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  api:
+    build: api
+    volumes:
+      - .:/code
+    deploy:
+      restart_policy:
+        condition: on-failure
+  proxy:
+    build: proxy
+    ports:
+      - "${PORT}:80"
+    depends_on:
+      - api
+  redis:
+    image: "redis:alpine"
+    hostname: redis
+    ports:
+      - "6379:6379"
