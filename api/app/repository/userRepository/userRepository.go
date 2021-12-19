@@ -1,6 +1,7 @@
 package userRepository
 
 import (
+	passwordHelper "goa-golang/app/helpers/password"
 	"goa-golang/app/model/userModel"
 	"goa-golang/internal/storage"
 	"strings"
@@ -77,14 +78,22 @@ func (r *UserRepository) UpdateByID(id string, userUpdate userModel.User) error 
 }
 
 // Create implements the method to persist a new user
-func (r *UserRepository) CreateUser(userCreate userModel.User) (user *userModel.User, err error) {
-	result := r.db.Create(&user) // pass pointer of data to Create
+func (r *UserRepository) CreateUser(userCreate userModel.User) (_ *userModel.User, err error) {
+	hashed, err := passwordHelper.HashPassword(userCreate.Password)
+
+	if err != nil {
+		return nil, err
+	}
+
+	userCreate.Password = hashed
+
+	result := r.db.Create(&userCreate) // pass pointer of data to Create
 
 	if err = result.Error; err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	return &userCreate, nil
 }
 
 // FindByID implements the method to find a user from the store

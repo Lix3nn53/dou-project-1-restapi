@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	passwordHelper "goa-golang/app/helpers/password"
 	"goa-golang/app/repository/userRepository"
 	"goa-golang/internal/logger"
 
@@ -167,6 +168,19 @@ func (s *AuthService) Login(identificationNumber string, password string) (refre
 	}
 
 	s.logger.Info("USER: ", user)
+
+	matchPassword := passwordHelper.CheckPasswordHash(password, user.Password)
+
+	if !matchPassword {
+		err = errors.New("wrong password")
+		s.logger.Error(err.Error())
+		return "", "", err
+	}
+
+	if err != nil {
+		s.logger.Error(err.Error())
+		return "", "", err
+	}
 
 	refreshToken, err = s.tokenBuildRefresh(user.TCKN)
 	if err != nil {
