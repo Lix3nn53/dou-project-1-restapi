@@ -14,14 +14,15 @@ type UserRepository struct {
 
 //UserRepositoryInterface define the user repository interface methods
 type UserRepositoryInterface interface {
-	FindByID(id string) (user *userModel.User, err error)
+	FindByID(id uint) (user *userModel.User, err error)
+	FindByIDReduced(id uint) (user *userModel.User, err error)
 	FindByIdNumber(id string) (user *userModel.User, err error)
-	RemoveByID(uuid string) error
-	UpdateByID(id string, user userModel.User) error
+	RemoveByID(id uint) error
+	UpdateByID(id uint, user userModel.User) error
 	CreateUser(create userModel.User) (user *userModel.User, err error)
-	GetSessions(id string) (sessions string, err error)
-	AddSession(id string, refreshToken string) error
-	RemoveSession(id string, refreshToken string) error
+	GetSessions(id uint) (sessions string, err error)
+	AddSession(id uint, refreshToken string) error
+	RemoveSession(id uint, refreshToken string) error
 }
 
 // NewUserRepository implements the user repository interface.
@@ -32,8 +33,19 @@ func NewUserRepository(db *storage.DbStore) UserRepositoryInterface {
 }
 
 // FindByID implements the method to find a user from the store
-func (r *UserRepository) FindByID(id string) (user *userModel.User, err error) {
+func (r *UserRepository) FindByID(id uint) (user *userModel.User, err error) {
 	result := r.db.First(&user, id)
+
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// FindByID implements the method to find a user from the store
+func (r *UserRepository) FindByIDReduced(id uint) (user *userModel.User, err error) {
+	result := r.db.Select("id_number", "email").First(&user, id)
 
 	if err := result.Error; err != nil {
 		return nil, err
@@ -54,7 +66,7 @@ func (r *UserRepository) FindByIdNumber(id string) (user *userModel.User, err er
 }
 
 // RemoveByID implements the method to remove a user from the store
-func (r *UserRepository) RemoveByID(id string) error {
+func (r *UserRepository) RemoveByID(id uint) error {
 	result := r.db.Delete(&userModel.User{}, id)
 
 	if err := result.Error; err != nil {
@@ -65,7 +77,7 @@ func (r *UserRepository) RemoveByID(id string) error {
 }
 
 // UpdateByID implements the method to update a user into the store
-func (r *UserRepository) UpdateByID(id string, userUpdate userModel.User) error {
+func (r *UserRepository) UpdateByID(id uint, userUpdate userModel.User) error {
 	var user userModel.User
 
 	result := r.db.First(&user, id).Updates(userUpdate)
@@ -97,7 +109,7 @@ func (r *UserRepository) CreateUser(userCreate userModel.User) (_ *userModel.Use
 }
 
 // FindByID implements the method to find a user from the store
-func (r *UserRepository) GetSessions(id string) (sessions string, err error) {
+func (r *UserRepository) GetSessions(id uint) (sessions string, err error) {
 	var user userModel.User
 
 	result := r.db.Select("sessions").First(&user, id)
@@ -109,7 +121,7 @@ func (r *UserRepository) GetSessions(id string) (sessions string, err error) {
 	return user.Sessions, nil
 }
 
-func (r *UserRepository) AddSession(id string, refreshToken string) error {
+func (r *UserRepository) AddSession(id uint, refreshToken string) error {
 	sessionsStr := refreshToken
 
 	sessions, err := r.GetSessions(id)
@@ -126,7 +138,7 @@ func (r *UserRepository) AddSession(id string, refreshToken string) error {
 	return nil
 }
 
-func (r *UserRepository) RemoveSession(id string, refreshToken string) error {
+func (r *UserRepository) RemoveSession(id uint, refreshToken string) error {
 	sessions, err := r.GetSessions(id)
 	if err != nil {
 		return err

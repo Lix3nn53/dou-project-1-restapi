@@ -43,13 +43,22 @@ type RefreshAccessResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
+type LoginRequestBody struct {
+	IdentificationNumber string `json:"identificationNumber"`
+	Password             string `json:"password"`
+}
+
 // Find implements the method to handle the service to find a user by the primary key
 func (uc *AuthController) Login(c *gin.Context) {
-	// TODO get to post
-	username := c.Query("code")
-	password := c.Query("password")
+	var requestBody LoginRequestBody
 
-	refreshToken, accessToken, err := uc.service.Login(username, password)
+	if err := c.BindJSON(&requestBody); err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	refreshToken, accessToken, err := uc.service.Login(requestBody.IdentificationNumber, requestBody.Password)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)

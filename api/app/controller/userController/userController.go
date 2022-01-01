@@ -37,9 +37,9 @@ func (uc *UserController) Info(c *gin.Context) {
 		return
 	}
 
-	id := tokenId.(string)
+	id := tokenId.(uint)
 
-	user, err := uc.service.FindByIdNumber(id)
+	user, err := uc.service.FindByIDReduced(id)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusNotFound, err)

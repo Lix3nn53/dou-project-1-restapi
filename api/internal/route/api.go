@@ -70,6 +70,14 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			userCont := dic.InitUserController(userService, logger)
 
 			routev1.SetupUserRoute(users, userCont, authCont)
+
+			newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
+
+			if err != nil {
+				logger.Error(err.Error())
+			}
+
+			logger.Info(newUser)
 		}
 	}
 

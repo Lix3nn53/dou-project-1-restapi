@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,12 +18,12 @@ import (
 
 //UserServiceInterface define the user service interface methods
 type AuthServiceInterface interface {
-	TokenBuildAccess(id string) (tokenString string, err error)
-	tokenBuildRefresh(id string) (tokenString string, err error)
-	TokenValidate(tokenString string, secret string) (id string, err error)
-	TokenValidateRefresh(tokenString string) (id string, err error)
-	Logout(id string, refreshToken string) error
-	Login(username string, password string) (refreshToken string, accessToken string, err error)
+	TokenBuildAccess(id uint) (tokenString string, err error)
+	tokenBuildRefresh(id uint) (tokenString string, err error)
+	TokenValidate(tokenString string, secret string) (id uint, err error)
+	TokenValidateRefresh(tokenString string) (id uint, err error)
+	Logout(id uint, refreshToken string) error
+	Login(id string, password string) (refreshToken string, accessToken string, err error)
 }
 
 // billingService handles communication with the user repository
@@ -40,12 +41,14 @@ func NewAuthService(userRepo userRepository.UserRepositoryInterface, logger logg
 }
 
 // FindByID implements the method to find a user model by primary key
-func (s *AuthService) TokenBuildAccess(id string) (tokenString string, err error) {
+func (s *AuthService) TokenBuildAccess(id uint) (tokenString string, err error) {
 	// Create a new token object, specifying signing method and the claims
 	// you would like it to contain.
 
+	var idStr string = strconv.FormatUint(uint64(id), 10)
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    id,
+		Issuer:    idStr,
 		ExpiresAt: time.Now().Add(time.Duration(1) * time.Minute).Unix(),
 	})
 
@@ -60,11 +63,14 @@ func (s *AuthService) TokenBuildAccess(id string) (tokenString string, err error
 }
 
 // FindByID implements the method to find a user model by primary key
-func (s *AuthService) tokenBuildRefresh(id string) (tokenString string, err error) {
+func (s *AuthService) tokenBuildRefresh(id uint) (tokenString string, err error) {
 	// Create a new token object, specifying signing method and the claims
 	// you would like it to contain.
+
+	var idStr string = strconv.FormatUint(uint64(id), 10)
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Issuer:    id,
+		Issuer:    idStr,
 		ExpiresAt: time.Now().AddDate(0, 1, 0).Unix(),
 	})
 
@@ -84,7 +90,7 @@ func (s *AuthService) tokenBuildRefresh(id string) (tokenString string, err erro
 	return tokenString, nil
 }
 
-func (s *AuthService) TokenValidate(tokenString string, secret string) (id string, err error) {
+func (s *AuthService) TokenValidate(tokenString string, secret string) (id uint, err error) {
 	// Parse takes the token string and a function for looking up the key. The latter is especially
 	// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
 	// head of the token to identify which key to use, but the parsed token (head and claims) is provided
@@ -101,7 +107,7 @@ func (s *AuthService) TokenValidate(tokenString string, secret string) (id strin
 		return hmacSampleSecret, nil
 	})
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	s.logger.Info("TESTTTTT")
@@ -110,22 +116,28 @@ func (s *AuthService) TokenValidate(tokenString string, secret string) (id strin
 
 		s.logger.Info("claims: %s", claims)
 
-		return claims.Issuer, nil
+		u64, err := strconv.ParseUint(claims.Issuer, 10, 32)
+
+		if err != nil {
+			return 0, err
+		}
+
+		return uint(u64), nil
 	} else {
 		s.logger.Info("claims: %s", claims)
-		return "", errors.New("token is not valid")
+		return 0, errors.New("token is not valid")
 	}
 }
 
-func (s *AuthService) TokenValidateRefresh(tokenString string) (id string, err error) {
+func (s *AuthService) TokenValidateRefresh(tokenString string) (id uint, err error) {
 	id, err = s.TokenValidate(tokenString, os.Getenv("REFRESH_SECRET"))
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	sessions, err := s.userRepo.GetSessions(id)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	split := strings.Split(sessions, "/")
@@ -139,13 +151,13 @@ func (s *AuthService) TokenValidateRefresh(tokenString string) (id string, err e
 	}
 
 	if !contains {
-		return "", errors.New("session is not active")
+		return 0, errors.New("session is not active")
 	}
 
 	return id, nil
 }
 
-func (s *AuthService) Logout(id string, refreshToken string) error {
+func (s *AuthService) Logout(id uint, refreshToken string) error {
 	err := s.userRepo.RemoveSession(id, refreshToken)
 	if err != nil {
 		return err
@@ -182,13 +194,13 @@ func (s *AuthService) Login(identificationNumber string, password string) (refre
 		return "", "", err
 	}
 
-	refreshToken, err = s.tokenBuildRefresh(user.TCKN)
+	refreshToken, err = s.tokenBuildRefresh(user.ID)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return "", "", err
 	}
 
-	accessToken, err = s.TokenBuildAccess(user.TCKN)
+	accessToken, err = s.TokenBuildAccess(user.ID)
 	if err != nil {
 		s.logger.Error(err.Error())
 		return "", "", err

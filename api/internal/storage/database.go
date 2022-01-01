@@ -8,6 +8,12 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+
+	"goa-golang/app/model/choiceModel"
+	"goa-golang/app/model/employeeModel"
+	"goa-golang/app/model/surveyModel"
+	"goa-golang/app/model/userModel"
+	"goa-golang/app/model/voteModel"
 )
 
 const (
@@ -60,6 +66,14 @@ func InitializeDB(logger logger.Logger) *DbStore {
 	if err = sqlDB.Ping(); err != nil {
 		return nil
 	}
+
+	db.AutoMigrate(
+		&choiceModel.Choice{},
+		&voteModel.Vote{},
+		&userModel.User{},
+		&employeeModel.Employee{},
+		&surveyModel.Survey{},
+	)
 
 	return &DbStore{
 		db,
