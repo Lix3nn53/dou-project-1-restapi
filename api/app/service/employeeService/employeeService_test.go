@@ -1,7 +1,7 @@
 package employeeService
 
 import (
-	"goa-golang/app/repository/employeeRepository"
+	"dou-survey/app/repository/employeeRepository"
 	"reflect"
 	"testing"
 )

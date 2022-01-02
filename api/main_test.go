@@ -1,7 +1,7 @@
 package main
 
 import (
-	"goa-golang/internal/logger"
+	"dou-survey/internal/logger"
 
 	"encoding/json"
 	"net/http"

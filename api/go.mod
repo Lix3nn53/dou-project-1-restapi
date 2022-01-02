@@ -1,4 +1,4 @@
-module goa-golang
+module dou-survey
 
 go 1.16
 

@@ -1,10 +1,10 @@
 package billingService
 
 import (
-	appError "goa-golang/app/error"
-	"goa-golang/app/model/billingModel"
-	"goa-golang/app/model/userModel"
-	"goa-golang/app/repository/billingRepository"
+	appError "dou-survey/app/error"
+	"dou-survey/app/model/billingModel"
+	"dou-survey/app/model/userModel"
+	"dou-survey/app/repository/billingRepository"
 )
 
 //BillingServiceInterface define the user service interface methods

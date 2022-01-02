@@ -1,11 +1,11 @@
 package billingController
 
 import (
-	appError "goa-golang/app/error"
-	"goa-golang/app/model/billingModel"
-	"goa-golang/app/service/billingService"
-	"goa-golang/app/service/userService"
-	"goa-golang/internal/logger"
+	appError "dou-survey/app/error"
+	"dou-survey/app/model/billingModel"
+	"dou-survey/app/service/billingService"
+	"dou-survey/app/service/userService"
+	"dou-survey/internal/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

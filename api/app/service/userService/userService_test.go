@@ -1,7 +1,7 @@
 package userService
 
 import (
-	"goa-golang/app/repository/userRepository"
+	"dou-survey/app/repository/userRepository"
 	"reflect"
 	"testing"
 )

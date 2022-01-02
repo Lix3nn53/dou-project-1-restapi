@@ -1,8 +1,8 @@
 package surveyModel
 
 import (
-	"goa-golang/app/model/choiceModel"
-	"goa-golang/app/model/voteModel"
+	"dou-survey/app/model/choiceModel"
+	"dou-survey/app/model/voteModel"
 
 	"gorm.io/gorm"
 )

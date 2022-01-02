@@ -1,8 +1,8 @@
 package userModel
 
 import (
-	"goa-golang/app/model/employeeModel"
-	"goa-golang/app/model/voteModel"
+	"dou-survey/app/model/employeeModel"
+	"dou-survey/app/model/voteModel"
 
 	"gorm.io/gorm"
 )

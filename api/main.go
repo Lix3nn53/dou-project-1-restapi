@@ -1,10 +1,10 @@
 package main
 
 import (
+	"dou-survey/internal/logger"
+	"dou-survey/internal/route"
+	"dou-survey/internal/storage"
 	"errors"
-	"goa-golang/internal/logger"
-	"goa-golang/internal/route"
-	"goa-golang/internal/storage"
 
 	"flag"
 	"os"

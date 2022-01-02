@@ -1,6 +1,6 @@
 basePath: /v1
 consumes:
-- application/json
+  - application/json
 definitions:
   PingResponse:
     properties:
@@ -8,14 +8,14 @@ definitions:
         type: string
         x-go-name: Message
     type: object
-    x-go-package: goa-golang/app/controller/server
+    x-go-package: dou-survey/app/controller/server
   VersionResponse:
     properties:
       version:
         type: string
         x-go-name: Version
     type: object
-    x-go-package: goa-golang/app/controller/server
+    x-go-package: dou-survey/app/controller/server
 host: localhost
 info:
   contact:
@@ -26,7 +26,8 @@ info:
   license:
     name: MIT
     url: http://opensource.org/licenses/MIT
-  termsOfService: there are no TOS at this moment, use at your own risk we take no
+  termsOfService:
+    there are no TOS at this moment, use at your own risk we take no
     responsibility
   title: GoA API.
   version: 0.0.1
@@ -37,34 +38,34 @@ paths:
       operationId: ping
       responses:
         "200":
-          $ref: '#/responses/pingResponse'
+          $ref: "#/responses/pingResponse"
       summary: ping
       tags:
-      - server
+        - server
   /version:
     get:
       description: Returns the version of the api.
       operationId: version
       responses:
         "200":
-          $ref: '#/responses/versionResponse'
+          $ref: "#/responses/versionResponse"
       summary: version
       tags:
-      - server
+        - server
 produces:
-- application/json
+  - application/json
 responses:
   pingResponse:
     description: Server is running!
     schema:
-      $ref: '#/definitions/PingResponse'
+      $ref: "#/definitions/PingResponse"
   versionResponse:
     description: ""
     schema:
-      $ref: '#/definitions/VersionResponse'
+      $ref: "#/definitions/VersionResponse"
 schemes:
-- http
-- https
+  - http
+  - https
 securityDefinitions:
   oauth2:
     authorizationUrl: /oauth2/auth

@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	appError "dou-survey/app/error"
+	"dou-survey/app/service/authService"
+	"dou-survey/app/service/userService"
+	"dou-survey/internal/logger"
 	"errors"
-	appError "goa-golang/app/error"
-	"goa-golang/app/service/authService"
-	"goa-golang/app/service/userService"
-	"goa-golang/internal/logger"
 	"net/http"
 	"os"
 	"strings"
@@ -15,22 +15,26 @@ import (
 
 type authMiddleware struct {
 	logger logger.Logger
+	ac     authService.AuthServiceInterface
+	uc     userService.UserServiceInterface
 }
 
 //AuthMiddlewareInterface ...
 type AuthMiddlewareInterface interface {
-	Handler(authService.AuthServiceInterface, userService.UserServiceInterface) gin.HandlerFunc
+	Handler() gin.HandlerFunc
 }
 
 //NewAuthMiddleware ...
-func NewAuthMiddleware(logger logger.Logger) AuthMiddlewareInterface {
+func NewAuthMiddleware(logger logger.Logger, ac authService.AuthServiceInterface, uc userService.UserServiceInterface) AuthMiddlewareInterface {
 	return &authMiddleware{
 		logger,
+		ac,
+		uc,
 	}
 }
 
 //Handler ...
-func (cm authMiddleware) Handler(ac authService.AuthServiceInterface, uc userService.UserServiceInterface) gin.HandlerFunc {
+func (cm authMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cm.logger.Infof("Auth Middleware: %s", c.ClientIP())
 
@@ -48,14 +52,14 @@ func (cm authMiddleware) Handler(ac authService.AuthServiceInterface, uc userSer
 			return
 		}
 
-		id, err := ac.TokenValidate(token, os.Getenv("ACCESS_SECRET"))
+		id, err := cm.ac.TokenValidate(token, os.Getenv("ACCESS_SECRET"))
 		if err != nil {
 			appError.Respond(c, http.StatusUnauthorized, err)
 			c.Abort()
 			return
 		}
 
-		user, err := uc.FindByIDReduced(id)
+		user, err := cm.uc.FindByIDReduced(id)
 		if err != nil {
 			cm.logger.Error(err.Error())
 			appError.Respond(c, http.StatusNotFound, err)

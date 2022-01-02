@@ -1,13 +1,13 @@
 package employeeService
 
 import (
-	"goa-golang/app/model/employeeModel"
-	"goa-golang/app/repository/employeeRepository"
+	"dou-survey/app/model/employeeModel"
+	"dou-survey/app/repository/employeeRepository"
 )
 
 //EmployeeServiceInterface define the employee service interface methods
 type EmployeeServiceInterface interface {
-	FindByUserId(userId string) (employee *employeeModel.Employee, err error)
+	FindByUserId(userId uint) (employee *employeeModel.Employee, err error)
 }
 
 // billingService handles communication with the employee repository
@@ -22,6 +22,6 @@ func NewEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInterf
 	}
 }
 
-func (s *EmployeeService) FindByUserId(userId string) (employee *employeeModel.Employee, err error) {
+func (s *EmployeeService) FindByUserId(userId uint) (employee *employeeModel.Employee, err error) {
 	return s.employeeRepo.FindByUserId(userId)
 }

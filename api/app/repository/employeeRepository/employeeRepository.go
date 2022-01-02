@@ -1,8 +1,8 @@
 package employeeRepository
 
 import (
-	"goa-golang/app/model/employeeModel"
-	"goa-golang/internal/storage"
+	"dou-survey/app/model/employeeModel"
+	"dou-survey/internal/storage"
 )
 
 // billingRepository handles communication with the employee store
@@ -13,7 +13,7 @@ type EmployeeRepository struct {
 //EmployeeRepositoryInterface define the employee repository interface methods
 type EmployeeRepositoryInterface interface {
 	FindByID(id string) (employee *employeeModel.Employee, err error)
-	FindByUserId(userId string) (employee *employeeModel.Employee, err error)
+	FindByUserId(userId uint) (employee *employeeModel.Employee, err error)
 	RemoveByID(uuid string) error
 	UpdateByID(id string, employee employeeModel.Employee) error
 	CreateEmployee(create employeeModel.Employee) (employee *employeeModel.Employee, err error)
@@ -38,7 +38,7 @@ func (r *EmployeeRepository) FindByID(id string) (employee *employeeModel.Employ
 }
 
 // FindByUserId implements the method to find a employee from the store
-func (r *EmployeeRepository) FindByUserId(userId string) (employee *employeeModel.Employee, err error) {
+func (r *EmployeeRepository) FindByUserId(userId uint) (employee *employeeModel.Employee, err error) {
 	result := r.db.First(employee, "UserRefer = ?", userId)
 
 	if err := result.Error; err != nil {

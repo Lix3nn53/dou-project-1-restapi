@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"goa-golang/app/controller/userController"
+	"dou-survey/app/controller/userController"
 
 	"github.com/gin-gonic/gin"
 )

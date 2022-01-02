@@ -1,8 +1,8 @@
 package userController
 
 import (
-	"goa-golang/app/service/userService"
-	"goa-golang/internal/logger"
+	"dou-survey/app/service/userService"
+	"dou-survey/internal/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

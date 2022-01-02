@@ -5,13 +5,16 @@
 package dic
 
 import (
-	"goa-golang/app/controller/authController"
-	"goa-golang/app/controller/userController"
-	"goa-golang/app/repository/userRepository"
-	"goa-golang/app/service/authService"
-	"goa-golang/app/service/userService"
-	"goa-golang/internal/logger"
-	"goa-golang/internal/storage"
+	"dou-survey/app/controller/authController"
+	"dou-survey/app/controller/employeeController"
+	"dou-survey/app/controller/userController"
+	"dou-survey/app/repository/employeeRepository"
+	"dou-survey/app/repository/userRepository"
+	"dou-survey/app/service/authService"
+	"dou-survey/app/service/employeeService"
+	"dou-survey/app/service/userService"
+	"dou-survey/internal/logger"
+	"dou-survey/internal/storage"
 )
 
 // Injectors from wire.go:
@@ -41,4 +44,20 @@ func InitAuthService(userRepo userRepository.UserRepositoryInterface, logger2 lo
 func InitAuthController(us authService.AuthServiceInterface, logger2 logger.Logger) authController.AuthControllerInterface {
 	authControllerInterface := authController.NewAuthController(us, logger2)
 	return authControllerInterface
+}
+
+// Employee
+func InitEmployeeRepository(db *storage.DbStore) employeeRepository.EmployeeRepositoryInterface {
+	employeeRepositoryInterface := employeeRepository.NewEmployeeRepository(db)
+	return employeeRepositoryInterface
+}
+
+func InitEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInterface) employeeService.EmployeeServiceInterface {
+	employeeServiceInterface := employeeService.NewEmployeeService(employeeRepo)
+	return employeeServiceInterface
+}
+
+func InitEmployeeController(us employeeService.EmployeeServiceInterface, logger2 logger.Logger) employeeController.EmployeeControllerInterface {
+	employeeControllerInterface := employeeController.NewEmployeeController(us, logger2)
+	return employeeControllerInterface
 }

@@ -4,7 +4,7 @@
 // Package mock is a generated GoMock package.
 package mock
 
-import "goa-golang/app/model/billingModel"
+import "dou-survey/app/model/billingModel"
 
 /*
 // MockAuthServiceUseCase is a mock of UserUseCase interface

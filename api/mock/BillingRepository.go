@@ -5,7 +5,7 @@
 package mock
 
 import (
-	billingModel "goa-golang/app/model/billingModel"
+	billingModel "dou-survey/app/model/billingModel"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

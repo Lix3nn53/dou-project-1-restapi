@@ -1,19 +1,19 @@
 package storage
 
 import (
+	"dou-survey/internal/logger"
 	"fmt"
-	"goa-golang/internal/logger"
 	"os"
 	"time"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"goa-golang/app/model/choiceModel"
-	"goa-golang/app/model/employeeModel"
-	"goa-golang/app/model/surveyModel"
-	"goa-golang/app/model/userModel"
-	"goa-golang/app/model/voteModel"
+	"dou-survey/app/model/choiceModel"
+	"dou-survey/app/model/employeeModel"
+	"dou-survey/app/model/surveyModel"
+	"dou-survey/app/model/userModel"
+	"dou-survey/app/model/voteModel"
 )
 
 const (

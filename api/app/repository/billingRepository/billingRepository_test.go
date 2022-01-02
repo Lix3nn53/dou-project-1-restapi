@@ -1,7 +1,7 @@
 package billingRepository
 
 import (
-	"goa-golang/internal/storage"
+	"dou-survey/internal/storage"
 	"reflect"
 	"testing"
 )

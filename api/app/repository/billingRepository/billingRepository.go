@@ -1,8 +1,8 @@
 package billingRepository
 
 import (
-	"goa-golang/app/model/billingModel"
-	"goa-golang/internal/storage"
+	"dou-survey/app/model/billingModel"
+	"dou-survey/internal/storage"
 )
 
 // billingRepository handles communication with the user store

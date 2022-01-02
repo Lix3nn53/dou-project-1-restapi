@@ -9,13 +9,16 @@
 package dic
 
 import (
-	"goa-golang/app/controller/authController"
-	"goa-golang/app/controller/userController"
-	"goa-golang/app/repository/userRepository"
-	"goa-golang/app/service/authService"
-	"goa-golang/app/service/userService"
-	"goa-golang/internal/logger"
-	"goa-golang/internal/storage"
+	"dou-survey/app/controller/authController"
+	"dou-survey/app/controller/employeeController"
+	"dou-survey/app/controller/userController"
+	"dou-survey/app/repository/employeeRepository"
+	"dou-survey/app/repository/userRepository"
+	"dou-survey/app/service/authService"
+	"dou-survey/app/service/employeeService"
+	"dou-survey/app/service/userService"
+	"dou-survey/internal/logger"
+	"dou-survey/internal/storage"
 
 	"github.com/google/wire"
 )
@@ -50,6 +53,25 @@ func initAuthController(us authService.AuthServiceInterface, logger logger.Logge
 	wire.Build(authController.NewAuthController)
 
 	return &authController.AuthController{}
+}
+
+// Employee
+func initEmployeeRepository(db *storage.DbStore) employeeRepository.EmployeeRepositoryInterface {
+	wire.Build(employeeRepository.NewEmployeeRepository)
+
+	return &employeeRepository.EmployeeRepository{}
+}
+
+func initEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInterface) employeeService.EmployeeServiceInterface {
+	wire.Build(employeeService.NewEmployeeService)
+
+	return &employeeService.EmployeeService{}
+}
+
+func initEmployeeController(us employeeService.EmployeeServiceInterface, logger logger.Logger) employeeController.EmployeeControllerInterface {
+	wire.Build(employeeController.NewEmployeeController)
+
+	return &employeeController.EmployeeController{}
 }
 
 // func initBillingService(db *storage.DbStore) billingService.BillingServiceInterface {

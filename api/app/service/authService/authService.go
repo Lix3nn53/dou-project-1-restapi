@@ -9,9 +9,9 @@ import (
 	"strings"
 	"time"
 
-	passwordHelper "goa-golang/app/helpers/password"
-	"goa-golang/app/repository/userRepository"
-	"goa-golang/internal/logger"
+	passwordHelper "dou-survey/app/helpers/password"
+	"dou-survey/app/repository/userRepository"
+	"dou-survey/internal/logger"
 
 	"github.com/golang-jwt/jwt"
 )

@@ -1,10 +1,10 @@
 package authController
 
 import (
+	appError "dou-survey/app/error"
+	"dou-survey/app/service/authService"
+	"dou-survey/internal/logger"
 	"errors"
-	appError "goa-golang/app/error"
-	"goa-golang/app/service/authService"
-	"goa-golang/internal/logger"
 	"net/http"
 	"strings"
 

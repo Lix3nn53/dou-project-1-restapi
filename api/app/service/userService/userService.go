@@ -1,8 +1,8 @@
 package userService
 
 import (
-	"goa-golang/app/model/userModel"
-	"goa-golang/app/repository/userRepository"
+	"dou-survey/app/model/userModel"
+	"dou-survey/app/repository/userRepository"
 )
 
 //UserServiceInterface define the user service interface methods

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"goa-golang/app/controller/billingController"
+	"dou-survey/app/controller/billingController"
 
 	"github.com/gin-gonic/gin"
 )

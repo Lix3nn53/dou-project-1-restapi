@@ -1,12 +1,12 @@
 package route
 
 import (
+	"dou-survey/internal/dic"
+	"dou-survey/internal/logger"
+	"dou-survey/internal/middleware"
+	routev1 "dou-survey/internal/route/v1"
+	"dou-survey/internal/storage"
 	"fmt"
-	"goa-golang/internal/dic"
-	"goa-golang/internal/logger"
-	"goa-golang/internal/middleware"
-	routev1 "goa-golang/internal/route/v1"
-	"goa-golang/internal/storage"
 	"os"
 	"time"
 
@@ -66,16 +66,18 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 
 		// users
 		users := v1.Group("/users")
-		userService := dic.InitUserService(userRepo)
-		authMiddlewareHandler := middleware.NewAuthMiddleware(logger).Handler(authService, userService) //also used in admin
 		{
-			userCont := dic.InitUserController(userService, logger)
+			userService := dic.InitUserService(userRepo)
 
 			// middleware
+			authMiddlewareHandler := middleware.NewAuthMiddleware(logger, authService, userService).Handler()
 			users.Use(authMiddlewareHandler)
 
+			// route setup
+			userCont := dic.InitUserController(userService, logger)
 			routev1.SetupUserRoute(users, userCont)
 
+			// create test user
 			newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
 
 			if err != nil {
@@ -83,26 +85,23 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			}
 
 			logger.Info(newUser)
+
+			// employee, is child of user
+			employees := users.Group("/employees")
+			{
+				employeeRepo := dic.InitEmployeeRepository(db)
+				employeeService := dic.InitEmployeeService(employeeRepo)
+
+				// middleware
+				isEmployeeMiddleware := middleware.NewIsEmployeeMiddleware(logger, employeeService)
+				employees.Use(isEmployeeMiddleware.Handler())
+
+				// route setup
+				employeeController := dic.InitEmployeeController(employeeService, logger)
+				routev1.SetupEmployeeRoute(employees, employeeController)
+			}
 		}
 
-		// admin
-		admin := v1.Group("/admin")
-		{
-			// middleware
-			admin.Use(authMiddlewareHandler)
-			isEmployeeMiddleware := middleware.NewIsEmployeeMiddleware(logger)
-			admin.Use(isEmployeeMiddleware.Handler())
-
-			// routev1.SetupUserRoute(users, userCont, authCont)
-
-			// newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
-
-			// if err != nil {
-			// 	logger.Error(err.Error())
-			// }
-
-			// logger.Info(newUser)
-		}
 	}
 
 	return r

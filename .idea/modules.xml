@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/goa-golang.iml" filepath="$PROJECT_DIR$/.idea/goa-golang.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/dou-survey.iml" filepath="$PROJECT_DIR$/.idea/dou-survey.iml" />
     </modules>
   </component>
 </project>

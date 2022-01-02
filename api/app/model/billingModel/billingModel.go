@@ -1,7 +1,7 @@
 package billingModel
 
 import (
-	appError "goa-golang/app/error"
+	appError "dou-survey/app/error"
 )
 
 // Identify Service types

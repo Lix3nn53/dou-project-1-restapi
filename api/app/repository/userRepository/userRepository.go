@@ -1,9 +1,9 @@
 package userRepository
 
 import (
-	passwordHelper "goa-golang/app/helpers/password"
-	"goa-golang/app/model/userModel"
-	"goa-golang/internal/storage"
+	passwordHelper "dou-survey/app/helpers/password"
+	"dou-survey/app/model/userModel"
+	"dou-survey/internal/storage"
 	"strings"
 )
 

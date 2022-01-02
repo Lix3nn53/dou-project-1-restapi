@@ -5,8 +5,8 @@
 package mock
 
 import (
-	billingModel "goa-golang/app/model/billingModel"
-	userModel "goa-golang/app/model/userModel"
+	billingModel "dou-survey/app/model/billingModel"
+	userModel "dou-survey/app/model/userModel"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

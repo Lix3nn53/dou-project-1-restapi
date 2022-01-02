@@ -3,7 +3,7 @@ package middleware
 import (
 	"github.com/gin-gonic/gin"
 
-	"goa-golang/internal/logger"
+	"dou-survey/internal/logger"
 )
 
 type testMiddleware struct {
