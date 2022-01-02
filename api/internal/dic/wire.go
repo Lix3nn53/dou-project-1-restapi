@@ -49,7 +49,7 @@ func initAuthService(userRepo userRepository.UserRepositoryInterface, logger log
 	return &authService.AuthService{}
 }
 
-func initAuthController(us authService.AuthServiceInterface, logger logger.Logger) authController.AuthControllerInterface {
+func initAuthController(as authService.AuthServiceInterface, us userService.UserServiceInterface, logger logger.Logger) authController.AuthControllerInterface {
 	wire.Build(authController.NewAuthController)
 
 	return &authController.AuthController{}

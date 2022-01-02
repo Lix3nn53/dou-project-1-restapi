@@ -56,7 +56,8 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 
 		// auth
 		authService := dic.InitAuthService(userRepo, logger)
-		authCont := dic.InitAuthController(authService, logger)
+		userService := dic.InitUserService(userRepo)
+		authCont := dic.InitAuthController(authService, userService, logger)
 
 		auth := v1.Group("/auth")
 		{
@@ -67,8 +68,6 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		// users
 		users := v1.Group("/users")
 		{
-			userService := dic.InitUserService(userRepo)
-
 			// middleware
 			authMiddlewareHandler := middleware.NewAuthMiddleware(logger, authService, userService).Handler()
 			users.Use(authMiddlewareHandler)
@@ -77,14 +76,14 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			userCont := dic.InitUserController(userService, logger)
 			routev1.SetupUserRoute(users, userCont)
 
-			// create test user
-			newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
+			// // create test user
+			// newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
 
-			if err != nil {
-				logger.Error(err.Error())
-			}
+			// if err != nil {
+			// 	logger.Error(err.Error())
+			// }
 
-			logger.Info(newUser)
+			// logger.Info(newUser)
 
 			// employee, is child of user
 			employees := users.Group("/employees")

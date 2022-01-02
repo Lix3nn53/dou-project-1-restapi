@@ -41,8 +41,8 @@ func InitAuthService(userRepo userRepository.UserRepositoryInterface, logger2 lo
 	return authServiceInterface
 }
 
-func InitAuthController(us authService.AuthServiceInterface, logger2 logger.Logger) authController.AuthControllerInterface {
-	authControllerInterface := authController.NewAuthController(us, logger2)
+func InitAuthController(as authService.AuthServiceInterface, us userService.UserServiceInterface, logger2 logger.Logger) authController.AuthControllerInterface {
+	authControllerInterface := authController.NewAuthController(as, us, logger2)
 	return authControllerInterface
 }
 

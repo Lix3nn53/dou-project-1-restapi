@@ -10,6 +10,7 @@ func SetupAuthRoute(auth *gin.RouterGroup, c authController.AuthControllerInterf
 	auth.GET("refresh_token", c.RefreshAccessToken)
 	auth.GET("logout", c.Logout)
 	auth.POST("login", c.Login)
+	auth.POST("register", c.Register)
 
 	return auth
 }
