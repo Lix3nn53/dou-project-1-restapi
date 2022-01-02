@@ -9,7 +9,7 @@ import (
 type UserServiceInterface interface {
 	FindByIDReduced(id uint) (user *userModel.User, err error)
 	FindByIdNumber(id string) (user *userModel.User, err error)
-	CreateUser(tckn, email, password string) (user *userModel.User, err error)
+	CreateUser(id_number, email, password string) (user *userModel.User, err error)
 }
 
 // billingService handles communication with the user repository
@@ -32,9 +32,9 @@ func (s *UserService) FindByIdNumber(id string) (user *userModel.User, err error
 	return s.userRepo.FindByIdNumber(id)
 }
 
-func (s *UserService) CreateUser(tckn, email, password string) (user *userModel.User, err error) {
+func (s *UserService) CreateUser(id_number, email, password string) (user *userModel.User, err error) {
 	newUser := userModel.User{
-		TCKN:     tckn,
+		IDNumber: id_number,
 		Email:    email,
 		Password: password,
 	}
