@@ -11,9 +11,7 @@ import (
 type UserServiceInterface interface {
 	FindByIDReduced(id uint) (user *userModel.User, err error)
 	FindByIdNumber(id string) (user *userModel.User, err error)
-	CreateUser(id_number, email, password, nationality string,
-		birthSex userModel.BirthSex, genderIdentity userModel.GenderIdentity,
-		birthDate datatypes.Date) (user *userModel.User, err error)
+	CreateUser(*CreateUserDTO) (user *userModel.User, err error)
 }
 
 // billingService handles communication with the user repository
@@ -36,17 +34,29 @@ func (s *UserService) FindByIdNumber(id string) (user *userModel.User, err error
 	return s.userRepo.FindByIdNumber(id)
 }
 
-func (s *UserService) CreateUser(id_number, email, password, nationality string,
-	birthSex userModel.BirthSex, genderIdentity userModel.GenderIdentity,
-	birthDate datatypes.Date) (user *userModel.User, err error) {
+type CreateUserDTO struct {
+	IDNumber       string                   `json:"IDNumber" binding:"required"`
+	Email          string                   `json:"email" binding:"required"`
+	Password       string                   `json:"password" binding:"required"`
+	Name           string                   `json:"name" binding:"required"`
+	Surname        string                   `json:"surname" binding:"required"`
+	Nationality    string                   `json:"nationality" binding:"required"`
+	BirthSex       userModel.BirthSex       `json:"birthSex" binding:"required"`
+	GenderIdentity userModel.GenderIdentity `json:"genderIdentity" binding:"required"`
+	BirthDate      datatypes.Date           `json:"birthDate" binding:"required"`
+}
+
+func (s *UserService) CreateUser(dto *CreateUserDTO) (user *userModel.User, err error) {
 	newUser := userModel.User{
-		Password:       password,
-		IDNumber:       id_number,
-		Email:          email,
-		BirthSex:       birthSex,
-		GenderIdentity: genderIdentity,
-		BirthDate:      birthDate,
-		Nationality:    nationality,
+		Password:       dto.Password,
+		IDNumber:       dto.IDNumber,
+		Email:          dto.Email,
+		Name:           dto.Name,
+		Surname:        dto.Surname,
+		BirthSex:       dto.BirthSex,
+		GenderIdentity: dto.GenderIdentity,
+		BirthDate:      dto.BirthDate,
+		Nationality:    dto.Nationality,
 	}
 
 	return s.userRepo.CreateUser(newUser)

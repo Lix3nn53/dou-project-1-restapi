@@ -166,9 +166,9 @@ func (s *AuthService) Logout(id uint, refreshToken string) error {
 	return nil
 }
 
-func (s *AuthService) Login(identificationNumber string, password string) (refreshToken string, accessToken string, err error) {
+func (s *AuthService) Login(IDNumber string, password string) (refreshToken string, accessToken string, err error) {
 	// FIND USER IF EXISTS
-	user, err := s.userRepo.FindByIdNumber(identificationNumber)
+	user, err := s.userRepo.FindByIdNumber(IDNumber)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		// USER DOES NOT EXIST

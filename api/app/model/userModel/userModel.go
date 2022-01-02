@@ -14,6 +14,8 @@ type User struct {
 	Password       string                 `json:"password" db:"password"`
 	IDNumber       string                 `json:"id_number" db:"id_number"  gorm:"unique;not null;column:id_number"`
 	Email          string                 `json:"email" db:"email"`
+	Name           string                 `json:"name" db:"name"`
+	Surname        string                 `json:"surname" db:"surname"`
 	Age            uint                   `json:"age" db:"age"`
 	BirthSex       BirthSex               `json:"birth_sex" db:"birth_sex"`
 	GenderIdentity GenderIdentity         `json:"gender" db:"gender"`

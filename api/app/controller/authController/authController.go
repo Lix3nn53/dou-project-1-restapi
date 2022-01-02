@@ -2,7 +2,6 @@ package authController
 
 import (
 	appError "dou-survey/app/error"
-	"dou-survey/app/model/userModel"
 	"dou-survey/app/service/authService"
 	"dou-survey/app/service/userService"
 	"dou-survey/internal/logger"
@@ -11,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/datatypes"
 )
 
 //UserControllerInterface define the user controller interface methods
@@ -38,31 +36,19 @@ func NewAuthController(service authService.AuthServiceInterface, userService use
 	}
 }
 
-type RegisterRequestBody struct {
-	IdentificationNumber string                   `json:"identificationNumber"`
-	Email                string                   `json:"email"`
-	Password             string                   `json:"password"`
-	Nationality          string                   `json:"nationality"`
-	BirthSex             userModel.BirthSex       `json:"birthSex"`
-	GenderIdentity       userModel.GenderIdentity `json:"genderIdentity"`
-	BirthDate            datatypes.Date           `json:"birthDate"`
-}
-
 // Find implements the method to handle the service to find a user by the primary key
 func (uc *AuthController) Register(c *gin.Context) {
-	var requestBody RegisterRequestBody
+	var requestBody userService.CreateUserDTO
 
 	uc.logger.Info(requestBody)
 
-	if err := c.BindJSON(&requestBody); err != nil {
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	newUser, err := uc.userService.CreateUser(requestBody.IdentificationNumber, requestBody.Email,
-		requestBody.Password, requestBody.Nationality, requestBody.BirthSex,
-		requestBody.GenderIdentity, requestBody.BirthDate)
+	newUser, err := uc.userService.CreateUser(&requestBody)
 
 	if err != nil {
 		uc.logger.Error(err.Error())
@@ -76,8 +62,8 @@ func (uc *AuthController) Register(c *gin.Context) {
 }
 
 type LoginRequestBody struct {
-	IdentificationNumber string `json:"identificationNumber"`
-	Password             string `json:"password"`
+	IDNumber string `json:"IDNumber" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
 type LoginResponse struct {
@@ -89,13 +75,13 @@ type LoginResponse struct {
 func (uc *AuthController) Login(c *gin.Context) {
 	var requestBody LoginRequestBody
 
-	if err := c.BindJSON(&requestBody); err != nil {
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	refreshToken, accessToken, err := uc.service.Login(requestBody.IdentificationNumber, requestBody.Password)
+	refreshToken, accessToken, err := uc.service.Login(requestBody.IDNumber, requestBody.Password)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
