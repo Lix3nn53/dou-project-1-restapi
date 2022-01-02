@@ -64,12 +64,17 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			routev1.SetupAuthRoute(auth, authCont)
 		}
 
+		// users
 		users := v1.Group("/users")
+		userService := dic.InitUserService(userRepo)
+		authMiddlewareHandler := middleware.NewAuthMiddleware(logger).Handler(authService, userService) //also used in admin
 		{
-			userService := dic.InitUserService(userRepo)
 			userCont := dic.InitUserController(userService, logger)
 
-			routev1.SetupUserRoute(users, userCont, authCont)
+			// middleware
+			users.Use(authMiddlewareHandler)
+
+			routev1.SetupUserRoute(users, userCont)
 
 			newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
 
@@ -78,6 +83,25 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			}
 
 			logger.Info(newUser)
+		}
+
+		// admin
+		admin := v1.Group("/admin")
+		{
+			// middleware
+			admin.Use(authMiddlewareHandler)
+			isEmployeeMiddleware := middleware.NewIsEmployeeMiddleware(logger)
+			admin.Use(isEmployeeMiddleware.Handler())
+
+			// routev1.SetupUserRoute(users, userCont, authCont)
+
+			// newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
+
+			// if err != nil {
+			// 	logger.Error(err.Error())
+			// }
+
+			// logger.Info(newUser)
 		}
 	}
 
