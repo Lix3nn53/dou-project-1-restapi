@@ -5,6 +5,7 @@ import (
 	"dou-survey/app/model/surveyModel"
 	"dou-survey/app/model/userModel"
 	"dou-survey/app/service/surveyService"
+	"dou-survey/app/service/userService"
 	"dou-survey/internal/logger"
 	"errors"
 	"net/http"
@@ -16,22 +17,54 @@ import (
 
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
+	List(c *gin.Context)
 	Info(c *gin.Context)
 	Create(c *gin.Context)
 }
 
 // SurveyController handles communication with the survey service
 type SurveyController struct {
-	service surveyService.SurveyServiceInterface
-	logger  logger.Logger
+	service     surveyService.SurveyServiceInterface
+	userService userService.UserServiceInterface
+	logger      logger.Logger
 }
 
 // NewSurveyController implements the survey controller interface.
-func NewSurveyController(service surveyService.SurveyServiceInterface, logger logger.Logger) SurveyControllerInterface {
+func NewSurveyController(service surveyService.SurveyServiceInterface, userService userService.UserServiceInterface, logger logger.Logger) SurveyControllerInterface {
 	return &SurveyController{
 		service,
+		userService,
 		logger,
 	}
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) List(c *gin.Context) {
+	limit := c.DefaultQuery("limit", "5")
+	offset := c.DefaultQuery("offset", "0")
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	result, err := uc.service.List(limitInt, offsetInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key
@@ -53,7 +86,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 
 // Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) Create(c *gin.Context) {
-	var requestBody surveyModel.Survey
+	var requestBody *surveyModel.Survey
 
 	uc.logger.Info(requestBody)
 
@@ -63,8 +96,14 @@ func (uc *SurveyController) Create(c *gin.Context) {
 		return
 	}
 
-	var user userModel.User = c.MustGet("user").(userModel.User)
-	requestBody.UserRefer = user.ID
+	user := c.MustGet("user").(*userModel.User)
+	userFull, err := uc.userService.FindByIdNumber(user.IDNumber)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	requestBody.UserRefer = userFull.ID
 
 	valid, err := govalidator.ValidateStruct(requestBody)
 	if err != nil {
@@ -78,6 +117,9 @@ func (uc *SurveyController) Create(c *gin.Context) {
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
+
+	uc.logger.Info("SURVEY CREATE")
+	uc.logger.Infof("%#v", requestBody)
 
 	_, err = uc.service.Create(requestBody)
 

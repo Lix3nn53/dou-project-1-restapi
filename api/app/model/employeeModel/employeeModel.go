@@ -7,5 +7,5 @@ import (
 // Employee represents employee resources.
 type Employee struct {
 	gorm.Model
-	UserRefer uint `binding:"required"`
+	UserRefer uint
 }

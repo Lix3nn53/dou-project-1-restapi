@@ -90,7 +90,7 @@ func initSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) su
 	return &surveyService.SurveyService{}
 }
 
-func initSurveyController(us surveyService.SurveyServiceInterface, logger logger.Logger) surveyController.SurveyControllerInterface {
+func initSurveyController(ss surveyService.SurveyServiceInterface, us userService.UserServiceInterface, logger logger.Logger) surveyController.SurveyControllerInterface {
 	wire.Build(surveyController.NewSurveyController)
 
 	return &surveyController.SurveyController{}

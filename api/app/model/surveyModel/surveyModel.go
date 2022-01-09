@@ -9,7 +9,7 @@ import (
 
 type Survey struct {
 	gorm.Model
-	UserRefer   uint                     `binding:"required"`
+	UserRefer   uint
 	Questions   []questionModel.Question `gorm:"foreignKey:SurveyRefer" binding:"required"`
 	Subject     string                   `binding:"required"`
 	Description string                   `binding:"required"`

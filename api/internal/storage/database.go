@@ -11,6 +11,7 @@ import (
 
 	"dou-survey/app/model/choiceModel"
 	"dou-survey/app/model/employeeModel"
+	"dou-survey/app/model/questionModel"
 	"dou-survey/app/model/surveyModel"
 	"dou-survey/app/model/userModel"
 	"dou-survey/app/model/voteModel"
@@ -70,6 +71,7 @@ func InitializeDB(logger logger.Logger) *DbStore {
 	db.AutoMigrate(
 		&choiceModel.Choice{},
 		&voteModel.Vote{},
+		&questionModel.Question{},
 		&userModel.User{},
 		&employeeModel.Employee{},
 		&surveyModel.Survey{},

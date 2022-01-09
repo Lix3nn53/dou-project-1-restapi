@@ -76,7 +76,7 @@ func InitSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) su
 	return surveyServiceInterface
 }
 
-func InitSurveyController(us surveyService.SurveyServiceInterface, logger2 logger.Logger) surveyController.SurveyControllerInterface {
-	surveyControllerInterface := surveyController.NewSurveyController(us, logger2)
+func InitSurveyController(ss surveyService.SurveyServiceInterface, us userService.UserServiceInterface, logger2 logger.Logger) surveyController.SurveyControllerInterface {
+	surveyControllerInterface := surveyController.NewSurveyController(ss, us, logger2)
 	return surveyControllerInterface
 }

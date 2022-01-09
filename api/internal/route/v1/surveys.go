@@ -6,8 +6,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupSurveysRoute(survey *gin.RouterGroup, c surveyController.SurveyControllerInterface) *gin.RouterGroup {
-	survey.POST("/create", c.Create)
+func SetupSurveysRoute(surveys *gin.RouterGroup, c surveyController.SurveyControllerInterface) *gin.RouterGroup {
+	surveys.GET("/list", c.List)
+	surveys.POST("/create", c.Create)
 
-	return survey
+	return surveys
 }

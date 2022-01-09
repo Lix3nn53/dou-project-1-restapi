@@ -12,10 +12,11 @@ type SurveyRepository struct {
 
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
+	List(limit, offset int) (surveys *[]surveyModel.Survey, err error)
 	FindByID(id uint) (survey *surveyModel.Survey, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, survey surveyModel.Survey) error
-	CreateSurvey(create surveyModel.Survey) (survey *surveyModel.Survey, err error)
+	CreateSurvey(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
 
 // NewSurveyRepository implements the survey repository interface.
@@ -23,6 +24,17 @@ func NewSurveyRepository(db *storage.DbStore) SurveyRepositoryInterface {
 	return &SurveyRepository{
 		db,
 	}
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) List(limit, offset int) (surveys *[]surveyModel.Survey, err error) {
+	result := r.db.Limit(limit).Offset(offset).Find(&surveys)
+
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+
+	return surveys, nil
 }
 
 // FindByID implements the method to find a survey from the store
@@ -61,12 +73,12 @@ func (r *SurveyRepository) UpdateByID(id uint, surveyUpdate surveyModel.Survey) 
 }
 
 // Create implements the method to persist a new survey
-func (r *SurveyRepository) CreateSurvey(surveyCreate surveyModel.Survey) (_ *surveyModel.Survey, err error) {
+func (r *SurveyRepository) CreateSurvey(surveyCreate *surveyModel.Survey) (_ *surveyModel.Survey, err error) {
 	result := r.db.Create(&surveyCreate) // pass pointer of data to Create
 
 	if err = result.Error; err != nil {
 		return nil, err
 	}
 
-	return &surveyCreate, nil
+	return surveyCreate, nil
 }
