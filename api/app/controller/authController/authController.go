@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -48,6 +49,19 @@ func (uc *AuthController) Register(c *gin.Context) {
 		return
 	}
 
+	valid, err := govalidator.ValidateStruct(requestBody)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	if !valid {
+		err := errors.New("fields are not valid")
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
 	newUser, err := uc.userService.CreateUser(&requestBody)
 
 	if err != nil {
@@ -76,6 +90,19 @@ func (uc *AuthController) Login(c *gin.Context) {
 	var requestBody LoginRequestBody
 
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	valid, err := govalidator.ValidateStruct(requestBody)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	if !valid {
+		err := errors.New("fields are not valid")
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return

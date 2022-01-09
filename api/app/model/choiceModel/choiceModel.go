@@ -1,9 +1,14 @@
 package choiceModel
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+
+	"dou-survey/app/model/voteModel"
+)
 
 type Choice struct {
 	gorm.Model
-	SurveyRefer uint
-	Value       string
+	QuestionRefer uint
+	Value         string
+	Votes         []voteModel.Vote `gorm:"foreignKey:ChoiceRefer"`
 }

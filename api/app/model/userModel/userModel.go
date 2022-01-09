@@ -16,9 +16,8 @@ type User struct {
 	Email          string                 `json:"email" db:"email"`
 	Name           string                 `json:"name" db:"name"`
 	Surname        string                 `json:"surname" db:"surname"`
-	Age            uint                   `json:"age" db:"age"`
 	BirthSex       BirthSex               `json:"birth_sex" db:"birth_sex"`
-	GenderIdentity GenderIdentity         `json:"gender" db:"gender"`
+	GenderIdentity GenderIdentity         `json:"gender_identity" db:"gender_identity"`
 	BirthDate      datatypes.Date         `json:"birth_date" db:"birth_date"`
 	Nationality    string                 `json:"nationality" db:"nationality"`
 	Sessions       string                 `json:"sessions" db:"sessions"`
@@ -40,6 +39,6 @@ const (
 	GenderIdentityWoman       GenderIdentity = "woman"
 	GenderIdentityMan         GenderIdentity = "man"
 	GenderIdentityTransgender GenderIdentity = "transgender"
-	GenderIdentityNonBinay    GenderIdentity = "non" // non-binary/non-conforming
+	GenderIdentityNonBin      GenderIdentity = "non" // non-binary/non-conforming
 	GenderIdentityNoRespond   GenderIdentity = "norespond"
 )

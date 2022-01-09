@@ -7,11 +7,14 @@ package dic
 import (
 	"dou-survey/app/controller/authController"
 	"dou-survey/app/controller/employeeController"
+	"dou-survey/app/controller/surveyController"
 	"dou-survey/app/controller/userController"
 	"dou-survey/app/repository/employeeRepository"
+	"dou-survey/app/repository/surveyRepository"
 	"dou-survey/app/repository/userRepository"
 	"dou-survey/app/service/authService"
 	"dou-survey/app/service/employeeService"
+	"dou-survey/app/service/surveyService"
 	"dou-survey/app/service/userService"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/storage"
@@ -60,4 +63,20 @@ func InitEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInter
 func InitEmployeeController(us employeeService.EmployeeServiceInterface, logger2 logger.Logger) employeeController.EmployeeControllerInterface {
 	employeeControllerInterface := employeeController.NewEmployeeController(us, logger2)
 	return employeeControllerInterface
+}
+
+// Survey
+func InitSurveyRepository(db *storage.DbStore) surveyRepository.SurveyRepositoryInterface {
+	surveyRepositoryInterface := surveyRepository.NewSurveyRepository(db)
+	return surveyRepositoryInterface
+}
+
+func InitSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) surveyService.SurveyServiceInterface {
+	surveyServiceInterface := surveyService.NewSurveyService(surveyRepo)
+	return surveyServiceInterface
+}
+
+func InitSurveyController(us surveyService.SurveyServiceInterface, logger2 logger.Logger) surveyController.SurveyControllerInterface {
+	surveyControllerInterface := surveyController.NewSurveyController(us, logger2)
+	return surveyControllerInterface
 }

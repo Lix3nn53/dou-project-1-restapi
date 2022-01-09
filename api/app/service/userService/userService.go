@@ -35,8 +35,8 @@ func (s *UserService) FindByIdNumber(id string) (user *userModel.User, err error
 }
 
 type CreateUserDTO struct {
-	IDNumber       string                   `json:"IDNumber" binding:"required"`
-	Email          string                   `json:"email" binding:"required"`
+	IDNumber       string                   `json:"IDNumber" binding:"required" valid:"stringlength(11|11)"`
+	Email          string                   `json:"email" binding:"required" valid:"email"`
 	Password       string                   `json:"password" binding:"required"`
 	Name           string                   `json:"name" binding:"required"`
 	Surname        string                   `json:"surname" binding:"required"`

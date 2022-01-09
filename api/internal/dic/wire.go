@@ -11,11 +11,14 @@ package dic
 import (
 	"dou-survey/app/controller/authController"
 	"dou-survey/app/controller/employeeController"
+	"dou-survey/app/controller/surveyController"
 	"dou-survey/app/controller/userController"
 	"dou-survey/app/repository/employeeRepository"
+	"dou-survey/app/repository/surveyRepository"
 	"dou-survey/app/repository/userRepository"
 	"dou-survey/app/service/authService"
 	"dou-survey/app/service/employeeService"
+	"dou-survey/app/service/surveyService"
 	"dou-survey/app/service/userService"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/storage"
@@ -72,6 +75,25 @@ func initEmployeeController(us employeeService.EmployeeServiceInterface, logger 
 	wire.Build(employeeController.NewEmployeeController)
 
 	return &employeeController.EmployeeController{}
+}
+
+// Survey
+func initSurveyRepository(db *storage.DbStore) surveyRepository.SurveyRepositoryInterface {
+	wire.Build(surveyRepository.NewSurveyRepository)
+
+	return &surveyRepository.SurveyRepository{}
+}
+
+func initSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) surveyService.SurveyServiceInterface {
+	wire.Build(surveyService.NewSurveyService)
+
+	return &surveyService.SurveyService{}
+}
+
+func initSurveyController(us surveyService.SurveyServiceInterface, logger logger.Logger) surveyController.SurveyControllerInterface {
+	wire.Build(surveyController.NewSurveyController)
+
+	return &surveyController.SurveyController{}
 }
 
 // func initBillingService(db *storage.DbStore) billingService.BillingServiceInterface {

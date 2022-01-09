@@ -67,40 +67,46 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 
 		// users
 		users := v1.Group("/users")
+		// middleware
+		authMiddlewareHandler := middleware.NewAuthMiddleware(logger, authService, userService).Handler()
+		users.Use(authMiddlewareHandler)
 		{
-			// middleware
-			authMiddlewareHandler := middleware.NewAuthMiddleware(logger, authService, userService).Handler()
-			users.Use(authMiddlewareHandler)
-
 			// route setup
 			userCont := dic.InitUserController(userService, logger)
 			routev1.SetupUserRoute(users, userCont)
-
-			// // create test user
-			// newUser, err := userService.CreateUser("62236422322", "test@mail.co", "123456")
-
-			// if err != nil {
-			// 	logger.Error(err.Error())
-			// }
-
-			// logger.Info(newUser)
-
-			// employee, is child of user
-			employees := users.Group("/employees")
-			{
-				employeeRepo := dic.InitEmployeeRepository(db)
-				employeeService := dic.InitEmployeeService(employeeRepo)
-
-				// middleware
-				isEmployeeMiddleware := middleware.NewIsEmployeeMiddleware(logger, employeeService)
-				employees.Use(isEmployeeMiddleware.Handler())
-
-				// route setup
-				employeeController := dic.InitEmployeeController(employeeService, logger)
-				routev1.SetupEmployeeRoute(employees, employeeController)
-			}
 		}
 
+		// employees
+		employees := v1.Group("/employees")
+		{
+			// auth middleware
+			employees.Use(authMiddlewareHandler)
+
+			employeeRepo := dic.InitEmployeeRepository(db)
+			employeeService := dic.InitEmployeeService(employeeRepo)
+
+			// isEmployee middleware
+			isEmployeeMiddlewareHandler := middleware.NewIsEmployeeMiddleware(logger, employeeService).Handler()
+			employees.Use(isEmployeeMiddlewareHandler)
+
+			// route setup
+			employeeController := dic.InitEmployeeController(employeeService, logger)
+			routev1.SetupEmployeeRoute(employees, employeeController)
+		}
+
+		// survey
+		survey := v1.Group("/survey")
+		{
+			// auth middleware
+			survey.Use(authMiddlewareHandler)
+
+			surveyRepo := dic.InitSurveyRepository(db)
+			surveyService := dic.InitSurveyService(surveyRepo)
+
+			// route setup
+			surveyController := dic.InitSurveyController(surveyService, logger)
+			routev1.SetupSurveyRoute(survey, surveyController)
+		}
 	}
 
 	return r

@@ -45,7 +45,7 @@ func (r *UserRepository) FindByID(id uint) (user *userModel.User, err error) {
 
 // FindByID implements the method to find a user from the store
 func (r *UserRepository) FindByIDReduced(id uint) (user *userModel.User, err error) {
-	result := r.db.Select("id_number", "email").First(&user, id)
+	result := r.db.Select("id_number", "email", "name", "surname", "birth_sex", "gender_identity", "birth_date", "nationality").First(&user, id)
 
 	if err := result.Error; err != nil {
 		return nil, err
