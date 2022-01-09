@@ -7,7 +7,7 @@ import (
 
 //UserServiceInterface define the user service interface methods
 type UserServiceInterface interface {
-	FindByIDReduced(id uint) (user *userModel.User, err error)
+	FindByIDReduced(id uint) (user *userModel.UserReduced, err error)
 	FindByIdNumber(id string) (user *userModel.User, err error)
 	CreateUser(*userModel.User) (user *userModel.User, err error)
 }
@@ -24,7 +24,7 @@ func NewUserService(userRepo userRepository.UserRepositoryInterface) UserService
 	}
 }
 
-func (s *UserService) FindByIDReduced(id uint) (user *userModel.User, err error) {
+func (s *UserService) FindByIDReduced(id uint) (user *userModel.UserReduced, err error) {
 	return s.userRepo.FindByIDReduced(id)
 }
 

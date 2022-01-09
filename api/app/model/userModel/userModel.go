@@ -44,3 +44,14 @@ const (
 	GenderIdentityNonBin      GenderIdentity = "non" // non-binary/non-conforming
 	GenderIdentityNoRespond   GenderIdentity = "norespond"
 )
+
+type UserReduced struct {
+	IDNumber       string
+	Email          string
+	Name           string
+	Surname        string
+	BirthSex       BirthSex
+	GenderIdentity GenderIdentity
+	BirthDate      datatypes.Date
+	Nationality    string
+}

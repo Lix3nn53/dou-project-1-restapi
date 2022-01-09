@@ -15,7 +15,7 @@ type UserRepository struct {
 //UserRepositoryInterface define the user repository interface methods
 type UserRepositoryInterface interface {
 	FindByID(id uint) (user *userModel.User, err error)
-	FindByIDReduced(id uint) (user *userModel.User, err error)
+	FindByIDReduced(id uint) (user *userModel.UserReduced, err error)
 	FindByIdNumber(id string) (user *userModel.User, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, user userModel.User) error
@@ -44,8 +44,8 @@ func (r *UserRepository) FindByID(id uint) (user *userModel.User, err error) {
 }
 
 // FindByID implements the method to find a user from the store
-func (r *UserRepository) FindByIDReduced(id uint) (user *userModel.User, err error) {
-	result := r.db.Select("id_number", "email", "name", "surname", "birth_sex", "gender_identity", "birth_date", "nationality").First(&user, id)
+func (r *UserRepository) FindByIDReduced(id uint) (user *userModel.UserReduced, err error) {
+	result := r.db.Model(&userModel.User{}).First(&user, id)
 
 	if err := result.Error; err != nil {
 		return nil, err
