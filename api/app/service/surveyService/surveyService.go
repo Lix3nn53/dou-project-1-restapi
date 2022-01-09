@@ -8,6 +8,7 @@ import (
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
 	FindByID(userId uint) (survey *surveyModel.Survey, err error)
+	Create(create surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
 
 // billingService handles communication with the survey repository
@@ -24,4 +25,8 @@ func NewSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) Sur
 
 func (s *SurveyService) FindByID(userId uint) (survey *surveyModel.Survey, err error) {
 	return s.surveyRepo.FindByID(userId)
+}
+
+func (s *SurveyService) Create(create surveyModel.Survey) (survey *surveyModel.Survey, err error) {
+	return s.surveyRepo.CreateSurvey(create)
 }

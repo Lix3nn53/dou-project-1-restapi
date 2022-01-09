@@ -2,6 +2,7 @@ package surveyController
 
 import (
 	appError "dou-survey/app/error"
+	"dou-survey/app/model/surveyModel"
 	"dou-survey/app/service/surveyService"
 	"dou-survey/internal/logger"
 	"net/http"
@@ -31,7 +32,6 @@ func NewSurveyController(service surveyService.SurveyServiceInterface, logger lo
 
 // Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) Info(c *gin.Context) {
-	// Survey was added to context in middleware
 	survey := c.Param("survey")
 
 	u64, err := strconv.ParseUint(survey, 10, 32)
@@ -45,4 +45,27 @@ func (uc *SurveyController) Info(c *gin.Context) {
 	uc.service.FindByID(uint(u64))
 
 	c.JSON(http.StatusOK, survey)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) Create(c *gin.Context) {
+	var requestBody surveyModel.Survey
+
+	uc.logger.Info(requestBody)
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	_, err := uc.service.Create(requestBody)
+
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

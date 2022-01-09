@@ -19,7 +19,7 @@ type UserRepositoryInterface interface {
 	FindByIdNumber(id string) (user *userModel.User, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, user userModel.User) error
-	CreateUser(create userModel.User) (user *userModel.User, err error)
+	CreateUser(create *userModel.User) (user *userModel.User, err error)
 	GetSessions(id uint) (sessions string, err error)
 	AddSession(id uint, refreshToken string) error
 	RemoveSession(id uint, refreshToken string) error
@@ -90,7 +90,7 @@ func (r *UserRepository) UpdateByID(id uint, userUpdate userModel.User) error {
 }
 
 // Create implements the method to persist a new user
-func (r *UserRepository) CreateUser(userCreate userModel.User) (_ *userModel.User, err error) {
+func (r *UserRepository) CreateUser(userCreate *userModel.User) (_ *userModel.User, err error) {
 	hashed, err := passwordHelper.HashPassword(userCreate.Password)
 
 	if err != nil {
@@ -105,7 +105,7 @@ func (r *UserRepository) CreateUser(userCreate userModel.User) (_ *userModel.Use
 		return nil, err
 	}
 
-	return &userCreate, nil
+	return userCreate, nil
 }
 
 // FindByID implements the method to find a user from the store

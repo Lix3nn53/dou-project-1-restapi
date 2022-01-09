@@ -11,16 +11,16 @@ import (
 // User represents user resources.
 type User struct {
 	gorm.Model
-	Password       string                 `json:"password" db:"password"`
-	IDNumber       string                 `json:"id_number" db:"id_number"  gorm:"unique;not null;column:id_number"`
-	Email          string                 `json:"email" db:"email"`
-	Name           string                 `json:"name" db:"name"`
-	Surname        string                 `json:"surname" db:"surname"`
-	BirthSex       BirthSex               `json:"birth_sex" db:"birth_sex"`
-	GenderIdentity GenderIdentity         `json:"gender_identity" db:"gender_identity"`
-	BirthDate      datatypes.Date         `json:"birth_date" db:"birth_date"`
-	Nationality    string                 `json:"nationality" db:"nationality"`
-	Sessions       string                 `json:"sessions" db:"sessions"`
+	Password       string                 `json:"password" binding:"required"`
+	IDNumber       string                 `json:"IDNumber" gorm:"unique;not null;column:id_number" binding:"required" valid:"stringlength(11|11)"`
+	Email          string                 `json:"email" binding:"required" valid:"email"`
+	Name           string                 `json:"name" binding:"required"`
+	Surname        string                 `json:"surname" binding:"required"`
+	BirthSex       BirthSex               `json:"birthSex" binding:"required"`
+	GenderIdentity GenderIdentity         `json:"genderIdentity" binding:"required"`
+	BirthDate      datatypes.Date         `json:"birthDate" binding:"required"`
+	Nationality    string                 `json:"nationality" binding:"required"`
+	Sessions       string                 `json:"sessions"`
 	Employee       employeeModel.Employee `gorm:"foreignKey:UserRefer"`
 	Votes          []voteModel.Vote       `gorm:"foreignKey:UserRefer"`
 }

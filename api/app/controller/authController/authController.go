@@ -2,6 +2,7 @@ package authController
 
 import (
 	appError "dou-survey/app/error"
+	"dou-survey/app/model/userModel"
 	"dou-survey/app/service/authService"
 	"dou-survey/app/service/userService"
 	"dou-survey/internal/logger"
@@ -39,7 +40,7 @@ func NewAuthController(service authService.AuthServiceInterface, userService use
 
 // Find implements the method to handle the service to find a user by the primary key
 func (uc *AuthController) Register(c *gin.Context) {
-	var requestBody userService.CreateUserDTO
+	var requestBody userModel.User
 
 	uc.logger.Info(requestBody)
 
