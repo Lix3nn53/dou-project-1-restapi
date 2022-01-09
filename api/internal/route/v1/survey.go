@@ -7,7 +7,7 @@ import (
 )
 
 func SetupSurveyRoute(survey *gin.RouterGroup, c surveyController.SurveyControllerInterface) *gin.RouterGroup {
-	survey.GET("/survey/:survey", c.Info)
+	survey.GET("/:survey", c.Info)
 
 	return survey
 }

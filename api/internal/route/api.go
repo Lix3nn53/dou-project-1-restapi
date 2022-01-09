@@ -94,17 +94,23 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			routev1.SetupEmployeeRoute(employees, employeeController)
 		}
 
+		// surveys
+		surveyRepo := dic.InitSurveyRepository(db)
+		surveyService := dic.InitSurveyService(surveyRepo)
+		surveyController := dic.InitSurveyController(surveyService, logger)
+
+		surveys := v1.Group("/surveys")
+		{
+			// auth middleware
+			surveys.Use(authMiddlewareHandler)
+
+			// route setup
+			routev1.SetupSurveysRoute(surveys, surveyController)
+		}
+
 		// survey
 		survey := v1.Group("/survey")
 		{
-			// auth middleware
-			survey.Use(authMiddlewareHandler)
-
-			surveyRepo := dic.InitSurveyRepository(db)
-			surveyService := dic.InitSurveyService(surveyRepo)
-
-			// route setup
-			surveyController := dic.InitSurveyController(surveyService, logger)
 			routev1.SetupSurveyRoute(survey, surveyController)
 		}
 	}

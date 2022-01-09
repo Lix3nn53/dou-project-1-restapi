@@ -17,6 +17,7 @@ import (
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
 	Info(c *gin.Context)
+	Create(c *gin.Context)
 }
 
 // SurveyController handles communication with the survey service
