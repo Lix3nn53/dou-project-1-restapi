@@ -77,8 +77,8 @@ func (uc *AuthController) Register(c *gin.Context) {
 }
 
 type LoginRequestBody struct {
-	IDNumber string `json:"IDNumber" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	IDNumber string `binding:"required"`
+	Password string `binding:"required"`
 }
 
 type LoginResponse struct {

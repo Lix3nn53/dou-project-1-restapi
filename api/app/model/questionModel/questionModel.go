@@ -8,6 +8,6 @@ import (
 
 type Question struct {
 	gorm.Model
-	SurveyRefer uint
-	Choices     []choiceModel.Choice `gorm:"foreignKey:QuestionRefer"`
+	SurveyRefer uint                 `binding:"required"`
+	Choices     []choiceModel.Choice `gorm:"foreignKey:QuestionRefer" binding:"required"`
 }

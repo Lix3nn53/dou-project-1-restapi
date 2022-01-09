@@ -9,9 +9,10 @@ import (
 
 type Survey struct {
 	gorm.Model
-	Questions   []questionModel.Question `gorm:"foreignKey:SurveyRefer"`
-	Subject     string
-	Description string
-	DateStart   datatypes.Date
-	DateEnd     datatypes.Date
+	UserRefer   uint                     `binding:"required"`
+	Questions   []questionModel.Question `gorm:"foreignKey:SurveyRefer" binding:"required"`
+	Subject     string                   `binding:"required"`
+	Description string                   `binding:"required"`
+	DateStart   datatypes.Date           `binding:"required"`
+	DateEnd     datatypes.Date           `binding:"required"`
 }

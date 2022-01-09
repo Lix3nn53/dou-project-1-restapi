@@ -3,11 +3,14 @@ package surveyController
 import (
 	appError "dou-survey/app/error"
 	"dou-survey/app/model/surveyModel"
+	"dou-survey/app/model/userModel"
 	"dou-survey/app/service/surveyService"
 	"dou-survey/internal/logger"
+	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,7 +62,23 @@ func (uc *SurveyController) Create(c *gin.Context) {
 		return
 	}
 
-	_, err := uc.service.Create(requestBody)
+	var user userModel.User = c.MustGet("user").(userModel.User)
+	requestBody.UserRefer = user.ID
+
+	valid, err := govalidator.ValidateStruct(requestBody)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	if !valid {
+		err := errors.New("fields are not valid")
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	_, err = uc.service.Create(requestBody)
 
 	if err != nil {
 		uc.logger.Error(err.Error())

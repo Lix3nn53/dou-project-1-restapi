@@ -22,7 +22,7 @@ func NewServerController() ServerControllerInterface {
 }
 
 type PingResponse struct {
-	Message string `json:"message"`
+	Message string
 }
 
 func (uc *serverController) Ping(c *gin.Context) {
@@ -31,7 +31,7 @@ func (uc *serverController) Ping(c *gin.Context) {
 }
 
 type VersionResponse struct {
-	Version string `json:"version"`
+	Version string
 }
 
 func (uc *serverController) Version(c *gin.Context) {

@@ -4,6 +4,6 @@ import "gorm.io/gorm"
 
 type Vote struct {
 	gorm.Model
-	UserRefer   uint `gorm:"primaryKey"`
-	ChoiceRefer uint `gorm:"primaryKey"`
+	UserRefer   uint `gorm:"primaryKey" binding:"required"`
+	ChoiceRefer uint `gorm:"primaryKey" binding:"required"`
 }
