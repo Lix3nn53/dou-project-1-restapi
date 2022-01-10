@@ -12,7 +12,7 @@ type SurveyRepository struct {
 
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
-	List(limit, offset int) (surveys *[]surveyModel.Survey, err error)
+	List(limit, offset int) (surveys []surveyModel.Survey, err error)
 	FindByID(id uint) (survey *surveyModel.Survey, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, survey surveyModel.Survey) error
@@ -27,8 +27,13 @@ func NewSurveyRepository(db *storage.DbStore) SurveyRepositoryInterface {
 }
 
 // FindByID implements the method to find a survey from the store
-func (r *SurveyRepository) List(limit, offset int) (surveys *[]surveyModel.Survey, err error) {
-	result := r.db.Limit(limit).Offset(offset).Find(&surveys)
+func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey, err error) {
+	// result := r.db.Joins("Question").Limit(limit).Offset(offset).Find(&surveys)
+
+	// result := r.db.Joins("JOIN questions ON questions.survey_refer = surveys.id").Joins("JOIN choices ON choices.question_refer = questions.id").Find(&surveys)
+	result := r.db.Select("*").Joins("LEFT JOIN questions ON questions.survey_refer = surveys.id").
+		Joins("JOIN choices ON choices.question_refer = questions.id").
+		Joins("JOIN votes ON votes.choice_refer = choices.id").Limit(5).Offset(5).Find(&surveys)
 
 	if err := result.Error; err != nil {
 		return nil, err

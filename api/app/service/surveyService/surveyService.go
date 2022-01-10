@@ -7,7 +7,7 @@ import (
 
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
-	List(limit, offset int) (survey *[]surveyModel.Survey, err error)
+	List(limit, offset int) (survey []surveyModel.Survey, err error)
 	FindByID(userId uint) (survey *surveyModel.Survey, err error)
 	Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
@@ -24,7 +24,7 @@ func NewSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) Sur
 	}
 }
 
-func (s *SurveyService) List(limit, offset int) (survey *[]surveyModel.Survey, err error) {
+func (s *SurveyService) List(limit, offset int) (survey []surveyModel.Survey, err error) {
 	return s.surveyRepo.List(limit, offset)
 }
 

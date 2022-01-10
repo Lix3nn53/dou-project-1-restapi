@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 
 	"dou-survey/app/model/choiceModel"
 	"dou-survey/app/model/employeeModel"
@@ -31,7 +32,9 @@ type DbStore struct {
 
 // InitializeDB Opening a storage and save the reference to `Database` struct.
 func InitializeDB(logger logger.Logger) *DbStore {
-	db, err := gorm.Open(sqlite.Open(os.Getenv("DB_CONNECTION_STRING")), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(os.Getenv("DB_CONNECTION_STRING")), &gorm.Config{
+		Logger: gormlogger.Default.LogMode(gormlogger.Info),
+	})
 
 	if err != nil {
 		logger.Fatalf(err.Error())

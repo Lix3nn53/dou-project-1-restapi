@@ -64,6 +64,8 @@ func (uc *SurveyController) List(c *gin.Context) {
 		return
 	}
 
+	uc.logger.Infof("%#v", result)
+
 	c.JSON(http.StatusOK, result)
 }
 
