@@ -64,16 +64,20 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 		}
 
 		// Check if surveys exists in result array
+		isNewSurvey := true
 		for _, s := range surveys {
 			if s.ID == survey.ID {
 				survey = s
+				isNewSurvey = false
 			}
 		}
 
 		// Check if question exists in survey
+		isNewQuestion := true
 		for _, s := range survey.Questions {
 			if s.ID == question.ID {
 				question = s
+				isNewQuestion = false
 			}
 		}
 
@@ -90,22 +94,27 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 			// vote id is null meaning this choice does not have any votes yet
 			// if this choice is added to results already we can ignore this vote
 			// but if this choice is not added to results we will add with empty vote array
-
 			if isNewChoice {
 				// vote is null but choice is new so lets add this
 				question.Choices = append(question.Choices, choice)
-				survey.Questions = append(survey.Questions, question)
-				surveys = append(surveys, survey)
 			} // else vote is null and choice is already added so we can ignore this
+
+			if isNewQuestion {
+				survey.Questions = append(survey.Questions, question)
+			}
+
+			if isNewSurvey {
+				surveys = append(surveys, survey)
+			}
 		} else { // vote is not null
-			voteValue := uint(voteID.Int64)
+			voteID := uint(voteID.Int64)
 			vote := voteModel.Vote{}
-			vote.ID = voteValue
-			vote.Model.ID = voteValue
+			vote.ID = voteID
+			vote.Model.ID = voteID
 
 			isNewVote := true
 			for _, s := range choice.Votes {
-				if s.ID == voteValue {
+				if s.ID == voteID {
 					isNewVote = false
 				}
 			}
@@ -116,9 +125,18 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 			}
 
 			choice.Votes = append(choice.Votes, vote)
-			question.Choices = append(question.Choices, choice)
-			survey.Questions = append(survey.Questions, question)
-			surveys = append(surveys, survey)
+
+			if isNewChoice {
+				question.Choices = append(question.Choices, choice)
+			}
+
+			if isNewQuestion {
+				survey.Questions = append(survey.Questions, question)
+			}
+
+			if isNewSurvey {
+				surveys = append(surveys, survey)
+			}
 		}
 	}
 
