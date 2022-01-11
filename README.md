@@ -1,7 +1,7 @@
-# Guardians of Adelia REST API
+# Dou Project 1 REST API
 
-I am studiying golang and rest api best practices while developing backend for [Guardians of Adelia React App](https://github.com/Lix3nn53/goa-react-app).
-This web application is for [Guardians of Adelia](https://github.com/Lix3nn53/GuardiansOfAdelia) which is a dungeon driven mmorpg minecraft server project.
+I am studiying golang and rest api best practices while developing backend for [Dou Project App](https://github.com/Lix3nn53/dou-project-1-react).
+// TODO Description
 
 ## Web Framework
 
