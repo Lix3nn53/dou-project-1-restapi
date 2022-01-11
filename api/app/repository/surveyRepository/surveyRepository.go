@@ -65,27 +65,27 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 
 		// Check if surveys exists in result array
 		isNewSurvey := true
-		for _, s := range surveys {
+		for i, s := range surveys {
 			if s.ID == survey.ID {
-				survey = &s
+				survey = &surveys[i]
 				isNewSurvey = false
 			}
 		}
 
 		// Check if question exists in survey
 		isNewQuestion := true
-		for _, s := range survey.Questions {
+		for i, s := range survey.Questions {
 			if s.ID == question.ID {
-				question = &s
+				question = &survey.Questions[i]
 				isNewQuestion = false
 			}
 		}
 
 		// Check if choice exists in
 		isNewChoice := true
-		for _, s := range question.Choices {
+		for i, s := range question.Choices {
 			if s.ID == choice.ID {
-				choice = &s
+				choice = &question.Choices[i]
 				isNewChoice = false
 			}
 		}
