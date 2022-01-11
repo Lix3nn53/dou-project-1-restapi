@@ -46,13 +46,13 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 	surveys = make([]surveyModel.Survey, 0)
 
 	for rows.Next() {
-		survey := surveyModel.Survey{}
+		survey := &surveyModel.Survey{}
 		survey.Questions = make([]questionModel.Question, 0)
 
-		question := questionModel.Question{}
+		question := &questionModel.Question{}
 		question.Choices = make([]choiceModel.Choice, 0)
 
-		choice := choiceModel.Choice{}
+		choice := &choiceModel.Choice{}
 		choice.Votes = make([]voteModel.Vote, 0)
 
 		var voteID sql.NullInt64
@@ -67,7 +67,7 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 		isNewSurvey := true
 		for _, s := range surveys {
 			if s.ID == survey.ID {
-				survey = s
+				survey = &s
 				isNewSurvey = false
 			}
 		}
@@ -76,7 +76,7 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 		isNewQuestion := true
 		for _, s := range survey.Questions {
 			if s.ID == question.ID {
-				question = s
+				question = &s
 				isNewQuestion = false
 			}
 		}
@@ -85,7 +85,7 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 		isNewChoice := true
 		for _, s := range question.Choices {
 			if s.ID == choice.ID {
-				choice = s
+				choice = &s
 				isNewChoice = false
 			}
 		}
@@ -96,15 +96,15 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 			// but if this choice is not added to results we will add with empty vote array
 			if isNewChoice {
 				// vote is null but choice is new so lets add this
-				question.Choices = append(question.Choices, choice)
+				question.Choices = append(question.Choices, *choice)
 			} // else vote is null and choice is already added so we can ignore this
 
 			if isNewQuestion {
-				survey.Questions = append(survey.Questions, question)
+				survey.Questions = append(survey.Questions, *question)
 			}
 
 			if isNewSurvey {
-				surveys = append(surveys, survey)
+				surveys = append(surveys, *survey)
 			}
 		} else { // vote is not null
 			voteID := uint(voteID.Int64)
@@ -127,15 +127,15 @@ func (r *SurveyRepository) List(limit, offset int) (surveys []surveyModel.Survey
 			choice.Votes = append(choice.Votes, vote)
 
 			if isNewChoice {
-				question.Choices = append(question.Choices, choice)
+				question.Choices = append(question.Choices, *choice)
 			}
 
 			if isNewQuestion {
-				survey.Questions = append(survey.Questions, question)
+				survey.Questions = append(survey.Questions, *question)
 			}
 
 			if isNewSurvey {
-				surveys = append(surveys, survey)
+				surveys = append(surveys, *survey)
 			}
 		}
 	}
