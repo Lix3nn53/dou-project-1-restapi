@@ -1,10 +1,15 @@
 -- SQLite
-SELECT s.*,
+SELECT s.id,
+  s.user_refer,
+  s.subject,
+  s.description,
+  s.date_start,
+  s.date_end,
   q.id AS question_id,
-  c.id AS choice_id,
-  v.id AS vote_id,
   q.value AS question_value,
-  c.value AS choice_value
+  c.id AS choice_id,
+  c.value AS choice_value,
+  v.id AS vote_id
 FROM (
     SELECT *
     FROM `surveys`
