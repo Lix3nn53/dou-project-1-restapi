@@ -95,7 +95,7 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		}
 
 		// surveys
-		surveyRepo := dic.InitSurveyRepository(db)
+		surveyRepo := dic.InitSurveyRepository(db, logger)
 		surveyService := dic.InitSurveyService(surveyRepo)
 		surveyController := dic.InitSurveyController(surveyService, userService, logger)
 

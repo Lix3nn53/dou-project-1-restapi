@@ -78,7 +78,7 @@ func initEmployeeController(us employeeService.EmployeeServiceInterface, logger 
 }
 
 // Survey
-func initSurveyRepository(db *storage.DbStore) surveyRepository.SurveyRepositoryInterface {
+func initSurveyRepository(db *storage.DbStore, logger logger.Logger) surveyRepository.SurveyRepositoryInterface {
 	wire.Build(surveyRepository.NewSurveyRepository)
 
 	return &surveyRepository.SurveyRepository{}
