@@ -99,19 +99,19 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		surveyService := dic.InitSurveyService(surveyRepo)
 		surveyController := dic.InitSurveyController(surveyService, userService, logger)
 
-		surveys := v1.Group("/surveys")
+		survey := v1.Group("/survey")
 		{
 			// auth middleware
-			surveys.Use(authMiddlewareHandler)
+			survey.Use(authMiddlewareHandler)
 
 			// route setup
-			routev1.SetupSurveysRoute(surveys, surveyController)
+			routev1.SetupSurveyRoute(survey, surveyController)
 		}
 
 		// survey
-		survey := v1.Group("/survey")
+		surveys := v1.Group("/surveys")
 		{
-			routev1.SetupSurveyRoute(survey, surveyController)
+			routev1.SetupSurveysRoute(surveys, surveyController)
 		}
 	}
 
