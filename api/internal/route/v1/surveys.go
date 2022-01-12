@@ -6,9 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Survey route that requires auth
 func SetupSurveysRoute(surveys *gin.RouterGroup, c surveyController.SurveyControllerInterface) *gin.RouterGroup {
+	surveys.GET("/info/:survey", c.Info)
 	surveys.GET("/list", c.List)
-	surveys.POST("/create", c.Create)
 
 	return surveys
 }

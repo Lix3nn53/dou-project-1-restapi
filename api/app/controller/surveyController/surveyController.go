@@ -17,6 +17,7 @@ import (
 
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
+	Vote(c *gin.Context)
 	List(c *gin.Context)
 	Info(c *gin.Context)
 	Create(c *gin.Context)
@@ -38,24 +39,59 @@ func NewSurveyController(service surveyService.SurveyServiceInterface, userServi
 	}
 }
 
+type VoteRequestBody struct {
+	ChoiceID uint `binding:"required"`
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) Vote(c *gin.Context) {
+	var requestBody VoteRequestBody
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	user := c.MustGet("user").(*userModel.UserReduced)
+	userFull, err := uc.userService.FindByIdNumber(user.IDNumber)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	vote, err := uc.service.Vote(userFull.ID, requestBody.ChoiceID)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, vote)
+}
+
 // Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) List(c *gin.Context) {
 	limit := c.DefaultQuery("limit", "5")
 	offset := c.DefaultQuery("offset", "0")
 
-	limitInt, err := strconv.Atoi(limit)
+	limitInt64, err := strconv.ParseUint(limit, 10, 32)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	offsetInt, err := strconv.Atoi(offset)
+	offsetInt64, err := strconv.ParseUint(offset, 10, 32)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
+
+	limitInt := uint(limitInt64)
+	offsetInt := uint(offsetInt64)
 
 	result, err := uc.service.List(limitInt, offsetInt)
 	if err != nil {
@@ -64,24 +100,30 @@ func (uc *SurveyController) List(c *gin.Context) {
 		return
 	}
 
-	uc.logger.Infof("%#v", result)
+	// uc.logger.Infof("%#v", result)
 
 	c.JSON(http.StatusOK, result)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) Info(c *gin.Context) {
-	survey := c.Param("survey")
+	surveyID := c.Param("survey")
 
-	u64, err := strconv.ParseUint(survey, 10, 32)
-
+	surveyIDInt64, err := strconv.ParseUint(surveyID, 10, 32)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	uc.service.FindByID(uint(u64))
+	surveyIDInt := uint(surveyIDInt64)
+
+	survey, err := uc.service.FindByID(surveyIDInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
 
 	c.JSON(http.StatusOK, survey)
 }
@@ -98,7 +140,7 @@ func (uc *SurveyController) Create(c *gin.Context) {
 		return
 	}
 
-	user := c.MustGet("user").(*userModel.User)
+	user := c.MustGet("user").(*userModel.UserReduced)
 	userFull, err := uc.userService.FindByIdNumber(user.IDNumber)
 	if err != nil {
 		uc.logger.Error(err.Error())
