@@ -9,9 +9,10 @@ import (
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
 	Vote(userID, choiceID uint) (vote *voteModel.Vote, err error)
-	ListActive(limit, offset uint) (survey []surveyModel.Survey, err error)
-	ListResults(limit, offset uint) (survey []surveyModel.Survey, err error)
+	List(limit, offset uint) (survey []surveyModel.Survey, err error)
+	ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error)
 	FindByID(userId uint) (survey *surveyModel.Survey, err error)
+	FindByIDDetailed(userId uint) (survey *surveyModel.Survey, err error)
 	Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
 
@@ -31,16 +32,20 @@ func (s *SurveyService) Vote(userID, choiceID uint) (vote *voteModel.Vote, err e
 	return s.surveyRepo.Vote(userID, choiceID)
 }
 
-func (s *SurveyService) ListActive(limit, offset uint) (survey []surveyModel.Survey, err error) {
-	return s.surveyRepo.ListActive(limit, offset)
+func (s *SurveyService) List(limit, offset uint) (survey []surveyModel.Survey, err error) {
+	return s.surveyRepo.List(limit, offset)
 }
 
-func (s *SurveyService) ListResults(limit, offset uint) (survey []surveyModel.Survey, err error) {
-	return s.surveyRepo.ListResults(limit, offset)
+func (s *SurveyService) ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error) {
+	return s.surveyRepo.ListWithDetails(limit, offset)
 }
 
 func (s *SurveyService) FindByID(userId uint) (survey *surveyModel.Survey, err error) {
 	return s.surveyRepo.FindByID(userId)
+}
+
+func (s *SurveyService) FindByIDDetailed(userId uint) (survey *surveyModel.Survey, err error) {
+	return s.surveyRepo.FindByIDDetailed(userId)
 }
 
 func (s *SurveyService) Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error) {

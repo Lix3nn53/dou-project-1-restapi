@@ -94,7 +94,7 @@ func (uc *SurveyController) ListActive(c *gin.Context) {
 	limitInt := uint(limitInt64)
 	offsetInt := uint(offsetInt64)
 
-	result, err := uc.service.ListActive(limitInt, offsetInt)
+	result, err := uc.service.List(limitInt, offsetInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -128,7 +128,7 @@ func (uc *SurveyController) ListResults(c *gin.Context) {
 	limitInt := uint(limitInt64)
 	offsetInt := uint(offsetInt64)
 
-	result, err := uc.service.ListResults(limitInt, offsetInt)
+	result, err := uc.service.ListWithDetails(limitInt, offsetInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -153,7 +153,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 
 	surveyIDInt := uint(surveyIDInt64)
 
-	survey, err := uc.service.FindByID(surveyIDInt)
+	survey, err := uc.service.FindByIDDetailed(surveyIDInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
