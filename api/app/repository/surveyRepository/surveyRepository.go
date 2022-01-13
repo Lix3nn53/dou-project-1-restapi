@@ -19,7 +19,8 @@ type SurveyRepository struct {
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
 	Vote(userID, choiceID uint) (vote *voteModel.Vote, err error)
-	List(limit, offset uint) (surveys []surveyModel.Survey, err error)
+	ListResults(limit, offset uint) (surveys []surveyModel.Survey, err error)
+	ListActive(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	FindByID(id uint) (survey *surveyModel.Survey, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, survey surveyModel.Survey) error
@@ -51,9 +52,34 @@ func (r *SurveyRepository) Vote(userID, choiceID uint) (vote *voteModel.Vote, er
 }
 
 // FindByID implements the method to find a survey from the store
-func (r *SurveyRepository) List(limit, offset uint) (surveys []surveyModel.Survey, err error) {
+func (r *SurveyRepository) ListActive(limit, offset uint) (surveys []surveyModel.Survey, err error) {
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL ORDER BY `s`.`id` LIMIT ? OFFSET ?", limit, offset).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	// Values to load into
+	surveys = make([]surveyModel.Survey, 0)
+
+	for rows.Next() {
+		survey := &surveyModel.Survey{}
+
+		err = rows.Scan(&survey.ID, &survey.UserRefer, &survey.Subject, &survey.Description, &survey.DateStart, &survey.DateEnd)
+		if err != nil {
+			return nil, err
+		}
+
+		surveys = append(surveys, *survey)
+	}
+
+	return surveys, nil
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) ListResults(limit, offset uint) (surveys []surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id WHERE `s`.`deleted_at` IS NULL", limit, offset).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description,s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id", limit, offset).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -163,7 +189,7 @@ func (r *SurveyRepository) List(limit, offset uint) (surveys []surveyModel.Surve
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) FindByID(id uint) (survey *surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id WHERE `s`.`deleted_at` IS NULL", id).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id", id).Rows()
 	if err != nil {
 		return nil, err
 	}

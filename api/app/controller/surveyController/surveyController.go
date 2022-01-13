@@ -18,7 +18,8 @@ import (
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
 	Vote(c *gin.Context)
-	List(c *gin.Context)
+	ListActive(c *gin.Context)
+	ListResults(c *gin.Context)
 	Info(c *gin.Context)
 	Create(c *gin.Context)
 }
@@ -72,7 +73,7 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 }
 
 // Find implements the method to handle the service to find a survey by the primary key
-func (uc *SurveyController) List(c *gin.Context) {
+func (uc *SurveyController) ListActive(c *gin.Context) {
 	limit := c.DefaultQuery("limit", "5")
 	offset := c.DefaultQuery("offset", "0")
 
@@ -93,7 +94,41 @@ func (uc *SurveyController) List(c *gin.Context) {
 	limitInt := uint(limitInt64)
 	offsetInt := uint(offsetInt64)
 
-	result, err := uc.service.List(limitInt, offsetInt)
+	result, err := uc.service.ListActive(limitInt, offsetInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// uc.logger.Infof("%#v", result)
+
+	c.JSON(http.StatusOK, result)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) ListResults(c *gin.Context) {
+	limit := c.DefaultQuery("limit", "5")
+	offset := c.DefaultQuery("offset", "0")
+
+	limitInt64, err := strconv.ParseUint(limit, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	offsetInt64, err := strconv.ParseUint(offset, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	limitInt := uint(limitInt64)
+	offsetInt := uint(offsetInt64)
+
+	result, err := uc.service.ListResults(limitInt, offsetInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)

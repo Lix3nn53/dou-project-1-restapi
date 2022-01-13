@@ -13,10 +13,8 @@ SELECT s.id,
 FROM (
     SELECT *
     FROM `surveys`
-    ORDER BY `surveys`.`id`
-    LIMIT 5 OFFSET 0
+    WHERE `surveys`.`id` = ?
   ) AS s
   JOIN questions AS q ON q.survey_refer = s.id
   JOIN choices AS c ON c.question_refer = q.id
   LEFT JOIN votes AS v ON v.choice_refer = c.id
-WHERE `s`.`deleted_at` IS NULL
