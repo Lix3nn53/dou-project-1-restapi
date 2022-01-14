@@ -144,6 +144,13 @@ func (uc *SurveyController) ListResults(c *gin.Context) {
 // Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) Info(c *gin.Context) {
 	surveyID := c.Param("survey")
+	withChoicesQuery := c.DefaultQuery("withChoices", "false") // if survey is active, return withoutVotes instead of Reduced info
+	withChoices, err := strconv.ParseBool(withChoicesQuery)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
 
 	surveyIDInt64, err := strconv.ParseUint(surveyID, 10, 32)
 	if err != nil {
@@ -154,7 +161,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 
 	surveyIDInt := uint(surveyIDInt64)
 
-	survey, err := uc.service.FindByID(surveyIDInt)
+	survey, err := uc.service.FindByIDReduced(surveyIDInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -174,7 +181,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 		// so survey is not active but why?
 		if now.After(survey.DateStart) {
 			// now is after start which means now is also after end, voting ended, survey completed
-			survey, err = uc.service.FindByIDDetailed(surveyIDInt)
+			survey, err = uc.service.FindByIDWithVotes(surveyIDInt)
 			if err != nil {
 				uc.logger.Error(err.Error())
 				appError.Respond(c, http.StatusBadRequest, err)
@@ -183,6 +190,13 @@ func (uc *SurveyController) Info(c *gin.Context) {
 		} // else if now.Before(survey.DateEnd) {
 		// 	// now is before end which means now is also before start, survey voting havent started
 		// }
+	} else if withChoices {
+		survey, err = uc.service.FindByIDWithoutVotes(surveyIDInt)
+		if err != nil {
+			uc.logger.Error(err.Error())
+			appError.Respond(c, http.StatusBadRequest, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, survey)

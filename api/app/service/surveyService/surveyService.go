@@ -11,8 +11,9 @@ type SurveyServiceInterface interface {
 	Vote(userID, choiceID uint) (vote *voteModel.Vote, err error)
 	List(limit, offset uint) (survey []surveyModel.Survey, err error)
 	ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error)
-	FindByID(userId uint) (survey *surveyModel.Survey, err error)
-	FindByIDDetailed(userId uint) (survey *surveyModel.Survey, err error)
+	FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error)
+	FindByIDWithVotes(userId uint) (survey *surveyModel.Survey, err error)
+	FindByIDWithoutVotes(userId uint) (survey *surveyModel.Survey, err error)
 	Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
 
@@ -40,12 +41,16 @@ func (s *SurveyService) ListWithDetails(limit, offset uint) (survey []surveyMode
 	return s.surveyRepo.ListWithDetails(limit, offset)
 }
 
-func (s *SurveyService) FindByID(userId uint) (survey *surveyModel.Survey, err error) {
-	return s.surveyRepo.FindByID(userId)
+func (s *SurveyService) FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error) {
+	return s.surveyRepo.FindByIDReduced(userId)
 }
 
-func (s *SurveyService) FindByIDDetailed(userId uint) (survey *surveyModel.Survey, err error) {
-	return s.surveyRepo.FindByIDDetailed(userId)
+func (s *SurveyService) FindByIDWithVotes(userId uint) (survey *surveyModel.Survey, err error) {
+	return s.surveyRepo.FindByIDWithVotes(userId)
+}
+
+func (s *SurveyService) FindByIDWithoutVotes(userId uint) (survey *surveyModel.Survey, err error) {
+	return s.surveyRepo.FindByIDWithoutVotes(userId)
 }
 
 func (s *SurveyService) Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error) {
