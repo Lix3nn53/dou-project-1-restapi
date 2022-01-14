@@ -2,8 +2,8 @@ package surveyModel
 
 import (
 	"dou-survey/app/model/questionModel"
+	"time"
 
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -13,6 +13,6 @@ type Survey struct {
 	Questions   []questionModel.Question `gorm:"foreignKey:SurveyRefer" binding:"required"`
 	Subject     string                   `binding:"required"`
 	Description string                   `binding:"required"`
-	DateStart   datatypes.Date           `binding:"required"`
-	DateEnd     datatypes.Date           `binding:"required"`
+	DateStart   time.Time                `binding:"required"`
+	DateEnd     time.Time                `binding:"required"`
 }

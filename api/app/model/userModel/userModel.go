@@ -4,8 +4,8 @@ import (
 	"dou-survey/app/model/employeeModel"
 	"dou-survey/app/model/surveyModel"
 	"dou-survey/app/model/voteModel"
+	"time"
 
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ type User struct {
 	Surname        string         `binding:"required"`
 	BirthSex       BirthSex       `binding:"required"`
 	GenderIdentity GenderIdentity `binding:"required"`
-	BirthDate      datatypes.Date `binding:"required"`
+	BirthDate      time.Time      `binding:"required"`
 	Nationality    string         `binding:"required"`
 	Sessions       string
 	Employee       employeeModel.Employee `gorm:"foreignKey:UserRefer"`
@@ -52,6 +52,6 @@ type UserReduced struct {
 	Surname        string
 	BirthSex       BirthSex
 	GenderIdentity GenderIdentity
-	BirthDate      datatypes.Date
+	BirthDate      time.Time
 	Nationality    string
 }

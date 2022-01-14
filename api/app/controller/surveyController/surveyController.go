@@ -10,6 +10,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -153,11 +154,35 @@ func (uc *SurveyController) Info(c *gin.Context) {
 
 	surveyIDInt := uint(surveyIDInt64)
 
-	survey, err := uc.service.FindByIDDetailed(surveyIDInt)
+	survey, err := uc.service.FindByID(surveyIDInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
+	}
+
+	now := time.Now().UTC()
+
+	// uc.logger.Info(now)
+	// uc.logger.Info(survey.DateStart)
+	// uc.logger.Info(survey.DateEnd)
+	// uc.logger.Info(now.After(survey.DateStart))
+	// uc.logger.Info(now.Before(survey.DateEnd))
+
+	if !(now.After(survey.DateStart) && now.Before(survey.DateEnd)) { // do not enter if survey is active
+		// now is before start or now is after end
+		// so survey is not active but why?
+		if now.After(survey.DateStart) {
+			// now is after start which means now is also after end, voting ended, survey completed
+			survey, err = uc.service.FindByIDDetailed(surveyIDInt)
+			if err != nil {
+				uc.logger.Error(err.Error())
+				appError.Respond(c, http.StatusBadRequest, err)
+				return
+			}
+		} // else if now.Before(survey.DateEnd) {
+		// 	// now is before end which means now is also before start, survey voting havent started
+		// }
 	}
 
 	c.JSON(http.StatusOK, survey)

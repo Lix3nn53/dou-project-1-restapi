@@ -198,80 +198,11 @@ func (r *SurveyRepository) FindByID(id uint) (survey *surveyModel.Survey, err er
 	defer rows.Close()
 	// Values to load into
 	survey = &surveyModel.Survey{}
-	survey.Questions = make([]questionModel.Question, 0)
 
 	for rows.Next() {
-		question := &questionModel.Question{}
-		question.Choices = make([]choiceModel.Choice, 0)
-
-		choice := &choiceModel.Choice{}
-		choice.Votes = make([]voteModel.Vote, 0)
-
-		var voteID sql.NullInt64
-
-		err = rows.Scan(&survey.ID, &survey.UserRefer, &survey.Subject, &survey.Description, &survey.DateStart, &survey.DateEnd,
-			&question.ID, &question.Value, &choice.ID, &choice.Value, &voteID)
+		err = rows.Scan(&survey.ID, &survey.UserRefer, &survey.Subject, &survey.Description, &survey.DateStart, &survey.DateEnd)
 		if err != nil {
 			return nil, err
-		}
-
-		// Check if question exists in survey
-		isNewQuestion := true
-		for i, s := range survey.Questions {
-			if s.ID == question.ID {
-				question = &survey.Questions[i]
-				isNewQuestion = false
-			}
-		}
-
-		// Check if choice exists in
-		isNewChoice := true
-		for i, s := range question.Choices {
-			if s.ID == choice.ID {
-				choice = &question.Choices[i]
-				isNewChoice = false
-			}
-		}
-
-		if !voteID.Valid {
-			// vote id is null meaning this choice does not have any votes yet
-			// if this choice is added to results already we can ignore this vote
-			// but if this choice is not added to results we will add with empty vote array
-			if isNewChoice {
-				// vote is null but choice is new so lets add this
-				question.Choices = append(question.Choices, *choice)
-			} // else vote is null and choice is already added so we can ignore this
-
-			if isNewQuestion {
-				survey.Questions = append(survey.Questions, *question)
-			}
-		} else { // vote is not null
-			voteID := uint(voteID.Int64)
-			vote := voteModel.Vote{}
-			vote.ID = voteID
-			vote.Model.ID = voteID
-
-			isNewVote := true
-			for _, s := range choice.Votes {
-				if s.ID == voteID {
-					isNewVote = false
-				}
-			}
-
-			if !isNewVote { // should not be possible, panic to see if it occurs
-				r.logger.DPanic("DUBLICATE VOTE")
-				continue
-			}
-
-			choice.Votes = append(choice.Votes, vote)
-
-			if isNewChoice {
-				question.Choices = append(question.Choices, *choice)
-			}
-
-			if isNewQuestion {
-				survey.Questions = append(survey.Questions, *question)
-			}
 		}
 	}
 
