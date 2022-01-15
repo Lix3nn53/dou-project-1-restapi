@@ -239,7 +239,7 @@ func (uc *SurveyController) Create(c *gin.Context) {
 	uc.logger.Info("SURVEY CREATE")
 	uc.logger.Infof("%#v", requestBody)
 
-	_, err = uc.service.Create(requestBody)
+	created, err := uc.service.Create(requestBody)
 
 	if err != nil {
 		uc.logger.Error(err.Error())
@@ -247,5 +247,5 @@ func (uc *SurveyController) Create(c *gin.Context) {
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, created)
 }
