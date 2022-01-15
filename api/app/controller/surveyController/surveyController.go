@@ -42,7 +42,8 @@ func NewSurveyController(service surveyService.SurveyServiceInterface, userServi
 }
 
 type VoteRequestBody struct {
-	ChoiceID uint `binding:"required"`
+	SurveyID uint   `binding:"required"`
+	Votes    []uint `binding:"required"`
 }
 
 // Find implements the method to handle the service to find a survey by the primary key
@@ -63,14 +64,43 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 		return
 	}
 
-	vote, err := uc.service.Vote(userFull.ID, requestBody.ChoiceID)
+	// check vote count matches
+	count, err := uc.service.CountChoice(requestBody.SurveyID)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	if int(count) != len(requestBody.Votes) {
+		err := errors.New("vote count does not match")
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// check voted before
+	votedAlready, err := uc.service.VotedAlready(userFull.ID, requestBody.SurveyID)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+	if votedAlready {
+		err := errors.New("vote submitted already for this survey")
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// submit vote
+	err = uc.service.Vote(userFull.ID, requestBody.SurveyID, requestBody.Votes)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, vote)
+	c.Status(http.StatusOK)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key

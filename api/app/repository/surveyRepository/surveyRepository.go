@@ -18,12 +18,14 @@ type SurveyRepository struct {
 
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
-	Vote(userID, choiceID uint) (vote *voteModel.Vote, err error)
+	Vote(userID, surveyID uint, votes []uint) (err error)
+	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	List(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	ListWithDetails(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	FindByIDReduced(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(id uint) (survey *surveyModel.Survey, err error)
+	CountChoice(id uint) (count uint, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, survey surveyModel.Survey) error
 	CreateSurvey(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
@@ -38,19 +40,59 @@ func NewSurveyRepository(db *storage.DbStore, logger logger.Logger) SurveyReposi
 }
 
 // FindByID implements the method to find a survey from the store
-func (r *SurveyRepository) Vote(userID, choiceID uint) (vote *voteModel.Vote, err error) {
-	vote = &voteModel.Vote{
-		UserRefer:   userID,
-		ChoiceRefer: choiceID,
+func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (err error) {
+	rows, err := r.db.Raw("SELECT c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id ORDER BY c.id", surveyID).Rows()
+	if err != nil {
+		return err
 	}
 
-	result := r.db.Create(vote) // pass pointer of data to Create
+	defer rows.Close()
 
-	if err = result.Error; err != nil {
-		return nil, err
+	for rows.Next() {
+		var choiceID sql.NullInt64
+
+		err = rows.Scan(&choiceID)
+		if err != nil {
+			return err
+		}
+
+		if !choiceID.Valid {
+			// should not be possible
+		} else { // vote is not null
+			choiceID := uint(choiceID.Int64)
+
+			vote := &voteModel.Vote{
+				UserRefer:   userID,
+				ChoiceRefer: choiceID,
+			}
+
+			result := r.db.Create(vote)
+
+			if err = result.Error; err != nil {
+				return err
+			}
+		}
 	}
 
-	return vote, nil
+	return nil
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) VotedAlready(userID, surveyID uint) (voted bool, err error) {
+	rows, err := r.db.Raw("SELECT v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id WHERE v.user_refer = ? ORDER BY c.id", surveyID, userID).Rows()
+	if err != nil {
+		return true, err
+	}
+
+	defer rows.Close()
+	voted = false
+
+	for rows.Next() {
+		voted = true
+		break
+	}
+
+	return voted, nil
 }
 
 // FindByID implements the method to find a survey from the store
@@ -81,7 +123,7 @@ func (r *SurveyRepository) List(limit, offset uint) (surveys []surveyModel.Surve
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) ListWithDetails(limit, offset uint) (surveys []surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description,s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id", limit, offset).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description,s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY", limit, offset).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -213,7 +255,7 @@ func (r *SurveyRepository) FindByIDReduced(id uint) (survey *surveyModel.Survey,
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) FindByIDWithVotes(id uint) (survey *surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id", id).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY c.id", id).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -304,7 +346,7 @@ func (r *SurveyRepository) FindByIDWithVotes(id uint) (survey *surveyModel.Surve
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) FindByIDWithoutVotes(id uint) (survey *surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id", id).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id ORDER BY c.id", id).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +401,43 @@ func (r *SurveyRepository) FindByIDWithoutVotes(id uint) (survey *surveyModel.Su
 	}
 
 	return survey, nil
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) CountChoice(id uint) (count uint, err error) {
+	// Query with joins
+	rows, err := r.db.Raw("SELECT c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id", id).Rows()
+	if err != nil {
+		return 0, err
+	}
+
+	defer rows.Close()
+	// Values to load into
+	count = 0
+	choices := make([]uint, 0)
+
+	for rows.Next() {
+		var choiceID uint
+
+		err = rows.Scan(&choiceID)
+		if err != nil {
+			return 0, err
+		}
+
+		// Check if question exists in survey
+		isNewChoice := true
+		for _, s := range choices {
+			if s == choiceID {
+				isNewChoice = false
+			}
+		}
+
+		if isNewChoice {
+			choices = append(choices, choiceID)
+		}
+	}
+
+	return count, nil
 }
 
 // RemoveByID implements the method to remove a survey from the store
