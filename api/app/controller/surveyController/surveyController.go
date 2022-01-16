@@ -65,13 +65,13 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 	}
 
 	// check vote count matches
-	count, err := uc.service.CountChoice(requestBody.SurveyID)
+	count, err := uc.service.CountQuestion(requestBody.SurveyID)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
-	if int(count) != len(requestBody.Votes) {
+	if count != len(requestBody.Votes) {
 		err := errors.New("vote count does not match")
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -93,14 +93,14 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 	}
 
 	// submit vote
-	err = uc.service.Vote(userFull.ID, requestBody.SurveyID, requestBody.Votes)
+	created, err := uc.service.Vote(userFull.ID, requestBody.SurveyID, requestBody.Votes)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
 
-	c.Status(http.StatusOK)
+	c.JSON(http.StatusOK, created)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key

@@ -2,19 +2,20 @@ package surveyService
 
 import (
 	"dou-survey/app/model/surveyModel"
+	"dou-survey/app/model/voteModel"
 	"dou-survey/app/repository/surveyRepository"
 )
 
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
-	Vote(userID, surveyID uint, votes []uint) (err error)
+	Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	List(limit, offset uint) (survey []surveyModel.Survey, err error)
 	ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error)
 	FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(userId uint) (survey *surveyModel.Survey, err error)
-	CountChoice(id uint) (count uint, err error)
+	CountQuestion(id uint) (count int, err error)
 	Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
 }
 
@@ -30,7 +31,7 @@ func NewSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) Sur
 	}
 }
 
-func (s *SurveyService) Vote(userID, surveyID uint, votes []uint) (err error) {
+func (s *SurveyService) Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error) {
 	return s.surveyRepo.Vote(userID, surveyID, votes)
 }
 
@@ -58,8 +59,8 @@ func (s *SurveyService) FindByIDWithoutVotes(userId uint) (survey *surveyModel.S
 	return s.surveyRepo.FindByIDWithoutVotes(userId)
 }
 
-func (s *SurveyService) CountChoice(id uint) (count uint, err error) {
-	return s.surveyRepo.CountChoice(id)
+func (s *SurveyService) CountQuestion(id uint) (count int, err error) {
+	return s.surveyRepo.CountQuestion(id)
 }
 
 func (s *SurveyService) Create(create *surveyModel.Survey) (survey *surveyModel.Survey, err error) {

@@ -8,6 +8,7 @@ import (
 	"dou-survey/app/model/voteModel"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/storage"
+	"errors"
 )
 
 // billingRepository handles communication with the survey store
@@ -18,14 +19,14 @@ type SurveyRepository struct {
 
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
-	Vote(userID, surveyID uint, votes []uint) (err error)
+	Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	List(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	ListWithDetails(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	FindByIDReduced(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(id uint) (survey *surveyModel.Survey, err error)
-	CountChoice(id uint) (count uint, err error)
+	CountQuestion(id uint) (count int, err error)
 	RemoveByID(id uint) error
 	UpdateByID(id uint, survey surveyModel.Survey) error
 	CreateSurvey(create *surveyModel.Survey) (survey *surveyModel.Survey, err error)
@@ -40,41 +41,83 @@ func NewSurveyRepository(db *storage.DbStore, logger logger.Logger) SurveyReposi
 }
 
 // FindByID implements the method to find a survey from the store
-func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (err error) {
-	rows, err := r.db.Raw("SELECT c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id ORDER BY c.id", surveyID).Rows()
+func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error) {
+	rows, err := r.db.Raw("SELECT q.id as question_id, c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id ORDER BY c.id", surveyID).Rows()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer rows.Close()
+	// Values to load into
+	questions := make([]questionModel.Question, 0)
 
 	for rows.Next() {
+		var questionID sql.NullInt64
 		var choiceID sql.NullInt64
 
-		err = rows.Scan(&choiceID)
+		err = rows.Scan(&questionID, &choiceID)
 		if err != nil {
-			return err
+			return nil, err
+		}
+		if !choiceID.Valid || !questionID.Valid {
+			continue
 		}
 
-		if !choiceID.Valid {
-			// should not be possible
-		} else { // vote is not null
-			choiceID := uint(choiceID.Int64)
+		questionIDInt := uint(questionID.Int64)
 
-			vote := &voteModel.Vote{
-				UserRefer:   userID,
-				ChoiceRefer: choiceID,
-			}
-
-			result := r.db.Create(vote)
-
-			if err = result.Error; err != nil {
-				return err
+		// Check if surveys exists in result array
+		var question *questionModel.Question
+		isNewQuestion := true
+		for i, s := range questions {
+			if s.ID == questionIDInt {
+				question = &questions[i]
+				isNewQuestion = false
 			}
 		}
+
+		if isNewQuestion {
+			question = &questionModel.Question{}
+			question.ID = questionIDInt
+			question.Choices = make([]choiceModel.Choice, 0)
+			questions = append(questions, *question)
+			question = &questions[len(questions)-1]
+		}
+
+		choiceIDInt := uint(choiceID.Int64)
+		choice := choiceModel.Choice{}
+		choice.ID = choiceIDInt
+
+		question.Choices = append(question.Choices, choice)
 	}
 
-	return nil
+	created = make([]voteModel.Vote, 0)
+
+	// loop for validation
+	for i, s := range questions {
+		r.logger.Infof("Choices%s", i)
+		r.logger.Infof("%#v", s.Choices)
+
+		voteIndex := int(votes[i])
+		if len(s.Choices) <= voteIndex {
+			return nil, errors.New("vote index out of bounds")
+		}
+
+		vote := voteModel.Vote{
+			UserRefer:   userID,
+			ChoiceRefer: s.Choices[voteIndex].ID,
+		}
+
+		created = append(created, vote)
+	}
+
+	// create
+	result := r.db.Create(&created)
+
+	if err = result.Error; err != nil {
+		return nil, err
+	}
+
+	return created, nil
 }
 
 // FindByID implements the method to find a survey from the store
@@ -123,7 +166,7 @@ func (r *SurveyRepository) List(limit, offset uint) (surveys []surveyModel.Surve
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) ListWithDetails(limit, offset uint) (surveys []surveyModel.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description,s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY", limit, offset).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description,s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY s.id", limit, offset).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -404,40 +447,39 @@ func (r *SurveyRepository) FindByIDWithoutVotes(id uint) (survey *surveyModel.Su
 }
 
 // FindByID implements the method to find a survey from the store
-func (r *SurveyRepository) CountChoice(id uint) (count uint, err error) {
+func (r *SurveyRepository) CountQuestion(id uint) (count int, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id", id).Rows()
+	rows, err := r.db.Raw("SELECT q.id AS question_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id", id).Rows()
 	if err != nil {
 		return 0, err
 	}
 
 	defer rows.Close()
 	// Values to load into
-	count = 0
-	choices := make([]uint, 0)
+	questions := make([]uint, 0)
 
 	for rows.Next() {
-		var choiceID uint
+		var questionID uint
 
-		err = rows.Scan(&choiceID)
+		err = rows.Scan(&questionID)
 		if err != nil {
 			return 0, err
 		}
 
 		// Check if question exists in survey
-		isNewChoice := true
-		for _, s := range choices {
-			if s == choiceID {
-				isNewChoice = false
+		isNewQuestion := true
+		for _, s := range questions {
+			if s == questionID {
+				isNewQuestion = false
 			}
 		}
 
-		if isNewChoice {
-			choices = append(choices, choiceID)
+		if isNewQuestion {
+			questions = append(questions, questionID)
 		}
 	}
 
-	return count, nil
+	return len(questions), nil
 }
 
 // RemoveByID implements the method to remove a survey from the store
