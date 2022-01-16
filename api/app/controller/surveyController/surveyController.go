@@ -125,7 +125,7 @@ func (uc *SurveyController) ListActive(c *gin.Context) {
 	limitInt := uint(limitInt64)
 	offsetInt := uint(offsetInt64)
 
-	result, err := uc.service.List(limitInt, offsetInt)
+	result, err := uc.service.ListActive(limitInt, offsetInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -159,7 +159,7 @@ func (uc *SurveyController) ListResults(c *gin.Context) {
 	limitInt := uint(limitInt64)
 	offsetInt := uint(offsetInt64)
 
-	result, err := uc.service.ListWithDetails(limitInt, offsetInt)
+	result, err := uc.service.ListResults(limitInt, offsetInt)
 	if err != nil {
 		uc.logger.Error(err.Error())
 		appError.Respond(c, http.StatusBadRequest, err)
@@ -206,7 +206,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 	// uc.logger.Info(now.After(survey.DateStart))
 	// uc.logger.Info(now.Before(survey.DateEnd))
 
-	if !(now.After(survey.DateStart) && now.Before(survey.DateEnd)) { // do not enter if survey is active
+	if !(now.After(survey.DateStart) && now.Before(survey.DateEnd)) { // if survey is inactive, you cant get votes
 		// now is before start or now is after end
 		// so survey is not active but why?
 		if now.After(survey.DateStart) {
@@ -220,7 +220,7 @@ func (uc *SurveyController) Info(c *gin.Context) {
 		} // else if now.Before(survey.DateEnd) {
 		// 	// now is before end which means now is also before start, survey voting havent started
 		// }
-	} else if withChoices {
+	} else if withChoices { // if survey is active, do you want choices
 		survey, err = uc.service.FindByIDWithoutVotes(surveyIDInt)
 		if err != nil {
 			uc.logger.Error(err.Error())

@@ -7,5 +7,6 @@ SELECT s.id,
   s.date_end
 FROM `surveys` AS s
 WHERE `s`.`deleted_at` IS NULL
+  AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end`
 ORDER BY `s`.`id`
 LIMIT 5 OFFSET 0

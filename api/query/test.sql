@@ -15,4 +15,6 @@ FROM (
   ) AS s
   JOIN questions AS q ON q.survey_refer = s.id
   JOIN choices AS c ON c.question_refer = q.id
-ORDER BY c.id
+ORDER BY c.id;
+-- time
+SELECT DATE("now");

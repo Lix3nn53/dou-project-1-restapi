@@ -10,8 +10,8 @@ import (
 type SurveyServiceInterface interface {
 	Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
-	List(limit, offset uint) (survey []surveyModel.Survey, err error)
-	ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error)
+	ListActive(limit, offset uint) (survey []surveyModel.Survey, err error)
+	ListResults(limit, offset uint) (survey []surveyModel.Survey, err error)
 	FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(userId uint) (survey *surveyModel.Survey, err error)
@@ -39,12 +39,12 @@ func (s *SurveyService) VotedAlready(userID, surveyID uint) (voted bool, err err
 	return s.surveyRepo.VotedAlready(userID, surveyID)
 }
 
-func (s *SurveyService) List(limit, offset uint) (survey []surveyModel.Survey, err error) {
-	return s.surveyRepo.List(limit, offset)
+func (s *SurveyService) ListActive(limit, offset uint) (survey []surveyModel.Survey, err error) {
+	return s.surveyRepo.ListActive(limit, offset)
 }
 
-func (s *SurveyService) ListWithDetails(limit, offset uint) (survey []surveyModel.Survey, err error) {
-	return s.surveyRepo.ListWithDetails(limit, offset)
+func (s *SurveyService) ListResults(limit, offset uint) (survey []surveyModel.Survey, err error) {
+	return s.surveyRepo.ListResults(limit, offset)
 }
 
 func (s *SurveyService) FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error) {
