@@ -72,12 +72,12 @@ func InitializeDB(logger logger.Logger) *DbStore {
 	}
 
 	db.AutoMigrate(
-		&choiceModel.Choice{},
 		&voteModel.Vote{},
+		&choiceModel.Choice{},
 		&questionModel.Question{},
-		&userModel.User{},
-		&employeeModel.Employee{},
 		&surveyModel.Survey{},
+		&employeeModel.Employee{},
+		&userModel.User{},
 	)
 
 	return &DbStore{

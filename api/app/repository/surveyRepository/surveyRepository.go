@@ -94,9 +94,6 @@ func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (created []
 
 	// loop for validation
 	for i, s := range questions {
-		r.logger.Infof("Choices%s", i)
-		r.logger.Infof("%#v", s.Choices)
-
 		voteIndex := int(votes[i])
 		if len(s.Choices) <= voteIndex {
 			return nil, errors.New("vote index out of bounds")
@@ -111,7 +108,11 @@ func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (created []
 	}
 
 	// create
+	r.logger.Infof("VOTE")
+	r.logger.Infof("%#v", created)
 	result := r.db.Create(&created)
+	r.logger.Infof("VOTE AFTER CREATE")
+	r.logger.Infof("%#v", created)
 
 	if err = result.Error; err != nil {
 		return nil, err
