@@ -23,6 +23,8 @@ type SurveyRepositoryInterface interface {
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	ListActive(limit, offset uint) (surveys []surveyModel.Survey, err error)
 	ListResults(limit, offset uint) (surveys []surveyModel.Survey, err error)
+	CountActive() (count int, err error)
+	CountResults() (count int, err error)
 	FindByIDReduced(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(id uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(id uint) (survey *surveyModel.Survey, err error)
@@ -137,6 +139,44 @@ func (r *SurveyRepository) VotedAlready(userID, surveyID uint) (voted bool, err 
 	}
 
 	return voted, nil
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) CountActive() (count int, err error) {
+	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end`").Rows()
+	if err != nil {
+		return -1, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			return -1, err
+		}
+	}
+
+	return count, nil
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) CountResults() (count int, err error) {
+	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL AND NOT date('now') BETWEEN `surveys`.`date_start` AND `surveys`.`date_end`").Rows()
+	if err != nil {
+		return -1, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			return -1, err
+		}
+	}
+
+	return count, nil
 }
 
 // FindByID implements the method to find a survey from the store

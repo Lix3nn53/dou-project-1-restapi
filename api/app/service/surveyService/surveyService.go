@@ -12,6 +12,8 @@ type SurveyServiceInterface interface {
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	ListActive(limit, offset uint) (survey []surveyModel.Survey, err error)
 	ListResults(limit, offset uint) (survey []surveyModel.Survey, err error)
+	CountActive() (count int, err error)
+	CountResults() (count int, err error)
 	FindByIDReduced(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithVotes(userId uint) (survey *surveyModel.Survey, err error)
 	FindByIDWithoutVotes(userId uint) (survey *surveyModel.Survey, err error)
@@ -37,6 +39,14 @@ func (s *SurveyService) Vote(userID, surveyID uint, votes []uint) (created []vot
 
 func (s *SurveyService) VotedAlready(userID, surveyID uint) (voted bool, err error) {
 	return s.surveyRepo.VotedAlready(userID, surveyID)
+}
+
+func (s *SurveyService) CountActive() (count int, err error) {
+	return s.surveyRepo.CountActive()
+}
+
+func (s *SurveyService) CountResults() (count int, err error) {
+	return s.surveyRepo.CountResults()
 }
 
 func (s *SurveyService) ListActive(limit, offset uint) (survey []surveyModel.Survey, err error) {

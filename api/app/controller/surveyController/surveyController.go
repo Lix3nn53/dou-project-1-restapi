@@ -21,6 +21,8 @@ type SurveyControllerInterface interface {
 	Vote(c *gin.Context)
 	ListActive(c *gin.Context)
 	ListResults(c *gin.Context)
+	CountActive(c *gin.Context)
+	CountResults(c *gin.Context)
 	Info(c *gin.Context)
 	Create(c *gin.Context)
 }
@@ -101,6 +103,30 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, created)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) CountActive(c *gin.Context) {
+	result, err := uc.service.CountActive()
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) CountResults(c *gin.Context) {
+	result, err := uc.service.CountResults()
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key

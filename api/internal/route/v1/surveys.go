@@ -11,6 +11,8 @@ func SetupSurveysRoute(surveys *gin.RouterGroup, c surveyController.SurveyContro
 	surveys.GET("/info/:survey", c.Info)
 	surveys.GET("/list/active", c.ListActive)
 	surveys.GET("/list/results", c.ListResults)
+	surveys.GET("/count/active", c.CountActive)
+	surveys.GET("/count/results", c.CountResults)
 
 	return surveys
 }
