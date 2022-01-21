@@ -5,7 +5,7 @@ SELECT c.id AS choice_id,
   u.birth_sex,
   u.gender_identity,
   u.birth_date,
-  u.nationality
+  u.is_resident
 FROM (
     SELECT *
     FROM `choices`

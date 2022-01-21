@@ -46,7 +46,7 @@ func NewSurveyRepository(db *storage.DbStore, logger logger.Logger) SurveyReposi
 
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) ChoiceVotersInfo(choiceID uint) (voters []userModel.UserReduced, err error) {
-	rows, err := r.db.Raw("SELECT v.id AS vote_id, u.id AS user_id, u.birth_sex, u.gender_identity, u.birth_date, u.nationality FROM (SELECT * FROM `choices` WHERE `choices`.`id` = ?) AS c JOIN votes AS v ON v.choice_refer = c.id JOIN users AS u ON u.id = v.user_refer ORDER BY c.id", choiceID).Rows()
+	rows, err := r.db.Raw("SELECT v.id AS vote_id, u.id AS user_id, u.birth_sex, u.gender_identity, u.birth_date, u.is_resident FROM (SELECT * FROM `choices` WHERE `choices`.`id` = ?) AS c JOIN votes AS v ON v.choice_refer = c.id JOIN users AS u ON u.id = v.user_refer ORDER BY c.id", choiceID).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +60,7 @@ func (r *SurveyRepository) ChoiceVotersInfo(choiceID uint) (voters []userModel.U
 		var userID sql.NullInt64
 		user := &userModel.UserReduced{}
 
-		err = rows.Scan(&voteID, &userID, &user.BirthSex, &user.GenderIdentity, &user.BirthDate, &user.Nationality)
+		err = rows.Scan(&voteID, &userID, &user.BirthSex, &user.GenderIdentity, &user.BirthDate, &user.IsResident)
 		if err != nil {
 			return nil, err
 		}
