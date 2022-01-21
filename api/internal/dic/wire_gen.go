@@ -5,17 +5,9 @@
 package dic
 
 import (
-	"dou-survey/app/controller/authController"
-	"dou-survey/app/controller/employeeController"
-	"dou-survey/app/controller/surveyController"
-	"dou-survey/app/controller/userController"
-	"dou-survey/app/repository/employeeRepository"
-	"dou-survey/app/repository/surveyRepository"
-	"dou-survey/app/repository/userRepository"
-	"dou-survey/app/service/authService"
-	"dou-survey/app/service/employeeService"
-	"dou-survey/app/service/surveyService"
-	"dou-survey/app/service/userService"
+	"dou-survey/app/controller"
+	"dou-survey/app/repository"
+	"dou-survey/app/service"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/storage"
 )
@@ -23,60 +15,60 @@ import (
 // Injectors from wire.go:
 
 // User
-func InitUserRepository(db *storage.DbStore) userRepository.UserRepositoryInterface {
-	userRepositoryInterface := userRepository.NewUserRepository(db)
+func InitUserRepository(db *storage.DbStore) repository.UserRepositoryInterface {
+	userRepositoryInterface := repository.NewUserRepository(db)
 	return userRepositoryInterface
 }
 
-func InitUserService(userRepo userRepository.UserRepositoryInterface) userService.UserServiceInterface {
-	userServiceInterface := userService.NewUserService(userRepo)
+func InitUserService(userRepo repository.UserRepositoryInterface) service.UserServiceInterface {
+	userServiceInterface := service.NewUserService(userRepo)
 	return userServiceInterface
 }
 
-func InitUserController(us userService.UserServiceInterface, logger2 logger.Logger) userController.UserControllerInterface {
-	userControllerInterface := userController.NewUserController(us, logger2)
+func InitUserController(us service.UserServiceInterface, logger2 logger.Logger) controller.UserControllerInterface {
+	userControllerInterface := controller.NewUserController(us, logger2)
 	return userControllerInterface
 }
 
 // Auth
-func InitAuthService(userRepo userRepository.UserRepositoryInterface, logger2 logger.Logger) authService.AuthServiceInterface {
-	authServiceInterface := authService.NewAuthService(userRepo, logger2)
+func InitAuthService(userRepo repository.UserRepositoryInterface, logger2 logger.Logger) service.AuthServiceInterface {
+	authServiceInterface := service.NewAuthService(userRepo, logger2)
 	return authServiceInterface
 }
 
-func InitAuthController(as authService.AuthServiceInterface, us userService.UserServiceInterface, logger2 logger.Logger) authController.AuthControllerInterface {
-	authControllerInterface := authController.NewAuthController(as, us, logger2)
+func InitAuthController(as service.AuthServiceInterface, us service.UserServiceInterface, logger2 logger.Logger) controller.AuthControllerInterface {
+	authControllerInterface := controller.NewAuthController(as, us, logger2)
 	return authControllerInterface
 }
 
 // Employee
-func InitEmployeeRepository(db *storage.DbStore) employeeRepository.EmployeeRepositoryInterface {
-	employeeRepositoryInterface := employeeRepository.NewEmployeeRepository(db)
+func InitEmployeeRepository(db *storage.DbStore) repository.EmployeeRepositoryInterface {
+	employeeRepositoryInterface := repository.NewEmployeeRepository(db)
 	return employeeRepositoryInterface
 }
 
-func InitEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInterface) employeeService.EmployeeServiceInterface {
-	employeeServiceInterface := employeeService.NewEmployeeService(employeeRepo)
+func InitEmployeeService(employeeRepo repository.EmployeeRepositoryInterface) service.EmployeeServiceInterface {
+	employeeServiceInterface := service.NewEmployeeService(employeeRepo)
 	return employeeServiceInterface
 }
 
-func InitEmployeeController(us employeeService.EmployeeServiceInterface, logger2 logger.Logger) employeeController.EmployeeControllerInterface {
-	employeeControllerInterface := employeeController.NewEmployeeController(us, logger2)
+func InitEmployeeController(us service.EmployeeServiceInterface, logger2 logger.Logger) controller.EmployeeControllerInterface {
+	employeeControllerInterface := controller.NewEmployeeController(us, logger2)
 	return employeeControllerInterface
 }
 
 // Survey
-func InitSurveyRepository(db *storage.DbStore, logger2 logger.Logger) surveyRepository.SurveyRepositoryInterface {
-	surveyRepositoryInterface := surveyRepository.NewSurveyRepository(db, logger2)
+func InitSurveyRepository(db *storage.DbStore, logger2 logger.Logger) repository.SurveyRepositoryInterface {
+	surveyRepositoryInterface := repository.NewSurveyRepository(db, logger2)
 	return surveyRepositoryInterface
 }
 
-func InitSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) surveyService.SurveyServiceInterface {
-	surveyServiceInterface := surveyService.NewSurveyService(surveyRepo)
+func InitSurveyService(surveyRepo repository.SurveyRepositoryInterface) service.SurveyServiceInterface {
+	surveyServiceInterface := service.NewSurveyService(surveyRepo)
 	return surveyServiceInterface
 }
 
-func InitSurveyController(ss surveyService.SurveyServiceInterface, us userService.UserServiceInterface, logger2 logger.Logger) surveyController.SurveyControllerInterface {
-	surveyControllerInterface := surveyController.NewSurveyController(ss, us, logger2)
+func InitSurveyController(ss service.SurveyServiceInterface, us service.UserServiceInterface, logger2 logger.Logger) controller.SurveyControllerInterface {
+	surveyControllerInterface := controller.NewSurveyController(ss, us, logger2)
 	return surveyControllerInterface
 }

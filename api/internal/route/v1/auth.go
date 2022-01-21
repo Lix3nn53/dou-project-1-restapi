@@ -1,12 +1,12 @@
 package v1
 
 import (
-	"dou-survey/app/controller/authController"
+	"dou-survey/app/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetupAuthRoute(auth *gin.RouterGroup, c authController.AuthControllerInterface) *gin.RouterGroup {
+func SetupAuthRoute(auth *gin.RouterGroup, c controller.AuthControllerInterface) *gin.RouterGroup {
 	auth.GET("refresh_token", c.RefreshAccessToken)
 	auth.GET("logout", c.Logout)
 	auth.POST("login", c.Login)

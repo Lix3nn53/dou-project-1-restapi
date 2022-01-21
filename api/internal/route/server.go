@@ -3,14 +3,14 @@ package route
 import (
 	"github.com/gin-gonic/gin"
 
-	"dou-survey/app/controller/serverController"
+	"dou-survey/app/controller"
 )
 
 func SetupServerRoute(r *gin.Engine) *gin.Engine {
 	//server
 	r.StaticFile("/favicon.ico", "../public/favicon.ico")
 
-	sc := serverController.NewServerController()
+	sc := controller.NewServerController()
 
 	r.GET("/ping", sc.Ping)
 	r.GET("/version", sc.Version)

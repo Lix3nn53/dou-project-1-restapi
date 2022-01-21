@@ -9,17 +9,9 @@
 package dic
 
 import (
-	"dou-survey/app/controller/authController"
-	"dou-survey/app/controller/employeeController"
-	"dou-survey/app/controller/surveyController"
-	"dou-survey/app/controller/userController"
-	"dou-survey/app/repository/employeeRepository"
-	"dou-survey/app/repository/surveyRepository"
-	"dou-survey/app/repository/userRepository"
-	"dou-survey/app/service/authService"
-	"dou-survey/app/service/employeeService"
-	"dou-survey/app/service/surveyService"
-	"dou-survey/app/service/userService"
+	"dou-survey/app/controller"
+	"dou-survey/app/repository"
+	"dou-survey/app/service"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/storage"
 
@@ -27,73 +19,73 @@ import (
 )
 
 // User
-func initUserRepository(db *storage.DbStore) userRepository.UserRepositoryInterface {
-	wire.Build(userRepository.NewUserRepository)
+func initUserRepository(db *storage.DbStore) repository.UserRepositoryInterface {
+	wire.Build(repository.NewUserRepository)
 
-	return &userRepository.UserRepository{}
+	return &repository.UserRepository{}
 }
 
-func initUserService(userRepo userRepository.UserRepositoryInterface) userService.UserServiceInterface {
-	wire.Build(userService.NewUserService)
+func initUserService(userRepo repository.UserRepositoryInterface) service.UserServiceInterface {
+	wire.Build(service.NewUserService)
 
-	return &userService.UserService{}
+	return &service.UserService{}
 }
 
-func initUserController(us userService.UserServiceInterface, logger logger.Logger) userController.UserControllerInterface {
-	wire.Build(userController.NewUserController)
+func initUserController(us service.UserServiceInterface, logger logger.Logger) controller.UserControllerInterface {
+	wire.Build(controller.NewUserController)
 
-	return &userController.UserController{}
+	return &controller.UserController{}
 }
 
 // Auth
-func initAuthService(userRepo userRepository.UserRepositoryInterface, logger logger.Logger) authService.AuthServiceInterface {
-	wire.Build(authService.NewAuthService)
+func initAuthService(userRepo repository.UserRepositoryInterface, logger logger.Logger) service.AuthServiceInterface {
+	wire.Build(service.NewAuthService)
 
-	return &authService.AuthService{}
+	return &service.AuthService{}
 }
 
-func initAuthController(as authService.AuthServiceInterface, us userService.UserServiceInterface, logger logger.Logger) authController.AuthControllerInterface {
-	wire.Build(authController.NewAuthController)
+func initAuthController(as service.AuthServiceInterface, us service.UserServiceInterface, logger logger.Logger) controller.AuthControllerInterface {
+	wire.Build(controller.NewAuthController)
 
-	return &authController.AuthController{}
+	return &controller.AuthController{}
 }
 
 // Employee
-func initEmployeeRepository(db *storage.DbStore) employeeRepository.EmployeeRepositoryInterface {
-	wire.Build(employeeRepository.NewEmployeeRepository)
+func initEmployeeRepository(db *storage.DbStore) repository.EmployeeRepositoryInterface {
+	wire.Build(repository.NewEmployeeRepository)
 
-	return &employeeRepository.EmployeeRepository{}
+	return &repository.EmployeeRepository{}
 }
 
-func initEmployeeService(employeeRepo employeeRepository.EmployeeRepositoryInterface) employeeService.EmployeeServiceInterface {
-	wire.Build(employeeService.NewEmployeeService)
+func initEmployeeService(employeeRepo repository.EmployeeRepositoryInterface) service.EmployeeServiceInterface {
+	wire.Build(service.NewEmployeeService)
 
-	return &employeeService.EmployeeService{}
+	return &service.EmployeeService{}
 }
 
-func initEmployeeController(us employeeService.EmployeeServiceInterface, logger logger.Logger) employeeController.EmployeeControllerInterface {
-	wire.Build(employeeController.NewEmployeeController)
+func initEmployeeController(us service.EmployeeServiceInterface, logger logger.Logger) controller.EmployeeControllerInterface {
+	wire.Build(controller.NewEmployeeController)
 
-	return &employeeController.EmployeeController{}
+	return &controller.EmployeeController{}
 }
 
 // Survey
-func initSurveyRepository(db *storage.DbStore, logger logger.Logger) surveyRepository.SurveyRepositoryInterface {
-	wire.Build(surveyRepository.NewSurveyRepository)
+func initSurveyRepository(db *storage.DbStore, logger logger.Logger) repository.SurveyRepositoryInterface {
+	wire.Build(repository.NewSurveyRepository)
 
-	return &surveyRepository.SurveyRepository{}
+	return &repository.SurveyRepository{}
 }
 
-func initSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) surveyService.SurveyServiceInterface {
-	wire.Build(surveyService.NewSurveyService)
+func initSurveyService(surveyRepo repository.SurveyRepositoryInterface) service.SurveyServiceInterface {
+	wire.Build(service.NewSurveyService)
 
-	return &surveyService.SurveyService{}
+	return &service.SurveyService{}
 }
 
-func initSurveyController(ss surveyService.SurveyServiceInterface, us userService.UserServiceInterface, logger logger.Logger) surveyController.SurveyControllerInterface {
-	wire.Build(surveyController.NewSurveyController)
+func initSurveyController(ss service.SurveyServiceInterface, us service.UserServiceInterface, logger logger.Logger) controller.SurveyControllerInterface {
+	wire.Build(controller.NewSurveyController)
 
-	return &surveyController.SurveyController{}
+	return &controller.SurveyController{}
 }
 
 // func initBillingService(db *storage.DbStore) billingService.BillingServiceInterface {

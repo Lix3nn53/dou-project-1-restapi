@@ -2,8 +2,7 @@ package middleware
 
 import (
 	appError "dou-survey/app/error"
-	"dou-survey/app/service/authService"
-	"dou-survey/app/service/userService"
+	"dou-survey/app/service"
 	"dou-survey/internal/logger"
 	"errors"
 	"net/http"
@@ -15,8 +14,8 @@ import (
 
 type authMiddleware struct {
 	logger logger.Logger
-	ac     authService.AuthServiceInterface
-	uc     userService.UserServiceInterface
+	ac     service.AuthServiceInterface
+	uc     service.UserServiceInterface
 }
 
 //AuthMiddlewareInterface ...
@@ -25,7 +24,7 @@ type AuthMiddlewareInterface interface {
 }
 
 //NewAuthMiddleware ...
-func NewAuthMiddleware(logger logger.Logger, ac authService.AuthServiceInterface, uc userService.UserServiceInterface) AuthMiddlewareInterface {
+func NewAuthMiddleware(logger logger.Logger, ac service.AuthServiceInterface, uc service.UserServiceInterface) AuthMiddlewareInterface {
 	return &authMiddleware{
 		logger,
 		ac,

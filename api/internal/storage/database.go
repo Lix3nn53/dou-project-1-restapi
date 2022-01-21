@@ -10,12 +10,7 @@ import (
 	"gorm.io/gorm"
 	gormlogger "gorm.io/gorm/logger"
 
-	"dou-survey/app/model/choiceModel"
-	"dou-survey/app/model/employeeModel"
-	"dou-survey/app/model/questionModel"
-	"dou-survey/app/model/surveyModel"
-	"dou-survey/app/model/userModel"
-	"dou-survey/app/model/voteModel"
+	"dou-survey/app/model"
 )
 
 const (
@@ -72,12 +67,12 @@ func InitializeDB(logger logger.Logger) *DbStore {
 	}
 
 	db.AutoMigrate(
-		&voteModel.Vote{},
-		&choiceModel.Choice{},
-		&questionModel.Question{},
-		&surveyModel.Survey{},
-		&employeeModel.Employee{},
-		&userModel.User{},
+		&model.Vote{},
+		&model.Choice{},
+		&model.Question{},
+		&model.Survey{},
+		&model.Employee{},
+		&model.User{},
 	)
 
 	return &DbStore{

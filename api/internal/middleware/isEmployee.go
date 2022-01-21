@@ -2,8 +2,8 @@ package middleware
 
 import (
 	appError "dou-survey/app/error"
-	"dou-survey/app/model/userModel"
-	"dou-survey/app/service/employeeService"
+	"dou-survey/app/model"
+	"dou-survey/app/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +13,7 @@ import (
 
 type isEmployeeMiddleware struct {
 	logger logger.Logger
-	ec     employeeService.EmployeeServiceInterface
+	ec     service.EmployeeServiceInterface
 }
 
 //IsEmployeeMiddlewareInterface ...
@@ -22,7 +22,7 @@ type IsEmployeeMiddlewareInterface interface {
 }
 
 //NewIsEmployeeMiddleware ...
-func NewIsEmployeeMiddleware(logger logger.Logger, ec employeeService.EmployeeServiceInterface) IsEmployeeMiddlewareInterface {
+func NewIsEmployeeMiddleware(logger logger.Logger, ec service.EmployeeServiceInterface) IsEmployeeMiddlewareInterface {
 	return &isEmployeeMiddleware{
 		logger,
 		ec,
@@ -33,7 +33,7 @@ func NewIsEmployeeMiddleware(logger logger.Logger, ec employeeService.EmployeeSe
 func (cm isEmployeeMiddleware) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// User was added to context in middleware
-		var user userModel.User = c.MustGet("user").(userModel.User)
+		var user model.User = c.MustGet("user").(model.User)
 
 		employee, err := cm.ec.FindByUserId(user.ID)
 		if err != nil {
