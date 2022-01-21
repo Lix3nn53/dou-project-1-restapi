@@ -2,12 +2,14 @@ package surveyService
 
 import (
 	"dou-survey/app/model/surveyModel"
+	"dou-survey/app/model/userModel"
 	"dou-survey/app/model/voteModel"
 	"dou-survey/app/repository/surveyRepository"
 )
 
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
+	ChoiceVotersInfo(choiceID uint) (voters []userModel.UserReduced, err error)
 	Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
 	ListActive(limit, offset uint) (survey []surveyModel.Survey, err error)
@@ -31,6 +33,10 @@ func NewSurveyService(surveyRepo surveyRepository.SurveyRepositoryInterface) Sur
 	return &SurveyService{
 		surveyRepo,
 	}
+}
+
+func (s *SurveyService) ChoiceVotersInfo(choiceID uint) (voters []userModel.UserReduced, err error) {
+	return s.surveyRepo.ChoiceVotersInfo(choiceID)
 }
 
 func (s *SurveyService) Vote(userID, surveyID uint, votes []uint) (created []voteModel.Vote, err error) {

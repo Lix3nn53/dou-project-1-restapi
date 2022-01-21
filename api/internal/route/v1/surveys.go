@@ -8,6 +8,7 @@ import (
 
 // Surveys route that does not require auth
 func SetupSurveysRoute(surveys *gin.RouterGroup, c surveyController.SurveyControllerInterface) *gin.RouterGroup {
+	surveys.GET("/voter-details/:choice", c.ChoiceVoters)
 	surveys.GET("/info/:survey", c.Info)
 	surveys.GET("/list/active", c.ListActive)
 	surveys.GET("/list/results", c.ListResults)

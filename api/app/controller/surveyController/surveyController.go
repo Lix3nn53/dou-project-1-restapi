@@ -18,6 +18,7 @@ import (
 
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
+	ChoiceVoters(c *gin.Context)
 	Vote(c *gin.Context)
 	ListActive(c *gin.Context)
 	ListResults(c *gin.Context)
@@ -41,6 +42,29 @@ func NewSurveyController(service surveyService.SurveyServiceInterface, userServi
 		userService,
 		logger,
 	}
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) ChoiceVoters(c *gin.Context) {
+	choiceID := c.Param("choice")
+
+	choiceIDInt64, err := strconv.ParseUint(choiceID, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	choiceIDInt := uint(choiceIDInt64)
+
+	voters, err := uc.service.ChoiceVotersInfo(choiceIDInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, voters)
 }
 
 type VoteRequestBody struct {
