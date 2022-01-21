@@ -13,7 +13,7 @@ import (
 type User struct {
 	gorm.Model
 	Password       string         `binding:"required"`
-	IDNumber       string         `gorm:"unique;not null;column:id_number" binding:"required" valid:"stringlength(11|11)"`
+	IDNumber       string         `gorm:"unique;not null;column:id_number" binding:"required" valid:"stringlength(11|11)~IDNumber must be 11 digits long"`
 	Email          string         `binding:"required" valid:"email"`
 	Name           string         `binding:"required"`
 	Surname        string         `binding:"required"`

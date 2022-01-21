@@ -18,3 +18,7 @@ FROM (
 ORDER BY c.id;
 -- time
 SELECT DATE("now");
+-- expire
+UPDATE surveys
+SET date_end = "2022-01-01 00:00:00+00:00"
+WHERE id = 2;
