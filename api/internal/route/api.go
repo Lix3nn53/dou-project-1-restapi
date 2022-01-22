@@ -1,6 +1,7 @@
 package route
 
 import (
+	"dou-survey/faker"
 	"dou-survey/internal/dic"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/middleware"
@@ -112,6 +113,19 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		surveys := v1.Group("/surveys")
 		{
 			routev1.SetupSurveysRoute(surveys, surveyController)
+		}
+
+		// FAKER
+
+		surveyFaker := faker.NewSurveyFaker(db, logger)
+
+		surveyGen, err := surveyFaker.Generate(1)
+		if err != nil {
+			logger.Fatal(err)
+		} else {
+			db.Create(&surveyGen)
+
+			logger.JSON(surveyGen)
 		}
 	}
 

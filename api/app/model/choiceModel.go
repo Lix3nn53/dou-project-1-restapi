@@ -5,8 +5,8 @@ import (
 )
 
 type Choice struct {
-	gorm.Model
-	QuestionRefer uint   `binding:"required"`
-	Value         string `binding:"required"`
-	Votes         []Vote `gorm:"foreignKey:ChoiceRefer"`
+	gorm.Model    `fake:"skip"`
+	QuestionRefer uint   `binding:"required" fake:"skip"`
+	Value         string `binding:"required" fake:"{quote}"`
+	Votes         []Vote `gorm:"foreignKey:ChoiceRefer" fakesize:"20"`
 }

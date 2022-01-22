@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"os"
 
 	"go.uber.org/zap"
@@ -22,6 +23,7 @@ type Logger interface {
 	DPanicf(template string, args ...interface{})
 	Fatal(args ...interface{})
 	Fatalf(template string, args ...interface{})
+	JSON(v interface{})
 }
 
 // Logger
@@ -126,4 +128,12 @@ func (l *apiLogger) Fatal(args ...interface{}) {
 
 func (l *apiLogger) Fatalf(template string, args ...interface{}) {
 	l.sugarLogger.Fatalf(template, args...)
+}
+
+func (l *apiLogger) JSON(v interface{}) {
+	data, err := json.Marshal(v)
+	if err != nil {
+		l.sugarLogger.Fatal(err)
+	}
+	l.sugarLogger.Infof("%s\n", data)
 }

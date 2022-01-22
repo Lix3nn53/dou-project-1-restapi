@@ -17,7 +17,7 @@ type User struct {
 	BirthSex       BirthSex       `binding:"required"`
 	GenderIdentity GenderIdentity `binding:"required"`
 	BirthDate      time.Time      `binding:"required"`
-	IsResident     bool           `binding:"required"`
+	IsResident     *bool          `binding:"required"`
 	Sessions       string
 	Employee       Employee `gorm:"foreignKey:UserRefer"`
 	Votes          []Vote   `gorm:"foreignKey:UserRefer"`

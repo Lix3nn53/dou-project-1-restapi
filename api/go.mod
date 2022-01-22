@@ -4,6 +4,7 @@ go 1.16
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
+	github.com/brianvoe/gofakeit/v6 v6.14.3
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-openapi/runtime v0.19.29
 	github.com/go-playground/validator/v10 v10.7.0 // indirect
