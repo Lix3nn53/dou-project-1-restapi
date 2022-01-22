@@ -8,20 +8,20 @@ import (
 
 // User represents user resources.
 type User struct {
-	gorm.Model
+	gorm.Model     `fake:"skip"`
 	Password       string         `binding:"required"`
-	IDNumber       string         `gorm:"unique;not null;column:id_number" binding:"required" valid:"stringlength(11|11)~IDNumber must be 11 digits long"`
-	Email          string         `binding:"required" valid:"email"`
-	Name           string         `binding:"required"`
-	Surname        string         `binding:"required"`
-	BirthSex       BirthSex       `binding:"required"`
-	GenderIdentity GenderIdentity `binding:"required"`
-	BirthDate      time.Time      `binding:"required"`
+	IDNumber       string         `gorm:"unique;not null;column:id_number" binding:"required" valid:"stringlength(11|11)~IDNumber must be 11 digits long" fake:"{digitn:11}"`
+	Email          string         `binding:"required" valid:"email" fake:"{email}"`
+	Name           string         `binding:"required" fake:"{firstname}"`
+	Surname        string         `binding:"required" fake:"{lastname}"`
+	BirthSex       BirthSex       `binding:"required" fake:"{randomstring:[woman,man,norespond]}"`
+	GenderIdentity GenderIdentity `binding:"required" fake:"{randomstring:[woman,man,transgender,non,norespond]}"`
+	BirthDate      time.Time      `binding:"required" fake:"{daterange:1940-01-01,2020-12-31}" format:"yyyy-MM-dd"`
 	IsResident     *bool          `binding:"required"`
-	Sessions       string
-	Employee       Employee `gorm:"foreignKey:UserRefer"`
-	Votes          []Vote   `gorm:"foreignKey:UserRefer"`
-	CreatedSurveys []Survey `gorm:"foreignKey:UserRefer"`
+	Sessions       string         `fake:"skip"`
+	Employee       Employee       `gorm:"foreignKey:UserRefer" fake:"skip"`
+	Votes          []Vote         `gorm:"foreignKey:UserRefer" fake:"skip"`
+	CreatedSurveys []Survey       `gorm:"foreignKey:UserRefer" fake:"skip"`
 }
 
 type BirthSex string
