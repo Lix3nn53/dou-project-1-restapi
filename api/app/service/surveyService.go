@@ -10,8 +10,10 @@ type SurveyServiceInterface interface {
 	ChoiceVotersInfo(choiceID uint) (voters []model.UserReduced, err error)
 	Vote(userID, surveyID uint, votes []uint) (created []model.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
+	ListWaitingConfirmation(limit, offset uint) (surveys []model.Survey, err error)
 	ListActive(limit, offset uint) (survey []model.Survey, err error)
 	ListResults(limit, offset uint) (survey []model.Survey, err error)
+	CountWaitingConfirmation() (count int, err error)
 	CountActive() (count int, err error)
 	CountResults() (count int, err error)
 	FindByIDReduced(userId uint) (survey *model.Survey, err error)
@@ -45,12 +47,20 @@ func (s *SurveyService) VotedAlready(userID, surveyID uint) (voted bool, err err
 	return s.surveyRepo.VotedAlready(userID, surveyID)
 }
 
+func (s *SurveyService) CountWaitingConfirmation() (count int, err error) {
+	return s.surveyRepo.CountWaitingConfirmation()
+}
+
 func (s *SurveyService) CountActive() (count int, err error) {
 	return s.surveyRepo.CountActive()
 }
 
 func (s *SurveyService) CountResults() (count int, err error) {
 	return s.surveyRepo.CountResults()
+}
+
+func (s *SurveyService) ListWaitingConfirmation(limit, offset uint) (survey []model.Survey, err error) {
+	return s.surveyRepo.ListWaitingConfirmation(limit, offset)
 }
 
 func (s *SurveyService) ListActive(limit, offset uint) (survey []model.Survey, err error) {

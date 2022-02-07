@@ -19,8 +19,10 @@ type SurveyRepositoryInterface interface {
 	ChoiceVotersInfo(choiceID uint) (voters []model.UserReduced, err error)
 	Vote(userID, surveyID uint, votes []uint) (created []model.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
+	ListWaitingConfirmation(limit, offset uint) (surveys []model.Survey, err error)
 	ListActive(limit, offset uint) (surveys []model.Survey, err error)
 	ListResults(limit, offset uint) (surveys []model.Survey, err error)
+	CountWaitingConfirmation() (count int, err error)
 	CountActive() (count int, err error)
 	CountResults() (count int, err error)
 	FindByIDReduced(id uint) (survey *model.Survey, err error)
@@ -167,6 +169,25 @@ func (r *SurveyRepository) VotedAlready(userID, surveyID uint) (voted bool, err 
 }
 
 // FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) CountWaitingConfirmation() (count int, err error) {
+	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND `s`.`confirm_status` = 'waiting'").Rows()
+	if err != nil {
+		return -1, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&count)
+		if err != nil {
+			return -1, err
+		}
+	}
+
+	return count, nil
+}
+
+// FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) CountActive() (count int, err error) {
 	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end`").Rows()
 	if err != nil {
@@ -205,8 +226,33 @@ func (r *SurveyRepository) CountResults() (count int, err error) {
 }
 
 // FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) ListWaitingConfirmation(limit, offset uint) (surveys []model.Survey, err error) {
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND `s`.`confirm_status` = 'waiting' ORDER BY `s`.`id` LIMIT ? OFFSET ?", limit, offset).Rows()
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+	// Values to load into
+	surveys = make([]model.Survey, 0)
+
+	for rows.Next() {
+		survey := &model.Survey{}
+
+		err = rows.Scan(&survey.ID, &survey.UserRefer, &survey.Subject, &survey.Description, &survey.DateStart, &survey.DateEnd)
+		if err != nil {
+			return nil, err
+		}
+
+		surveys = append(surveys, *survey)
+	}
+
+	return surveys, nil
+}
+
+// FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) ListActive(limit, offset uint) (surveys []model.Survey, err error) {
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end` ORDER BY `s`.`id` LIMIT ? OFFSET ?", limit, offset).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND `s`.`confirm_status` = 'confirmed' AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end` ORDER BY `s`.`id` LIMIT ? OFFSET ?", limit, offset).Rows()
 	if err != nil {
 		return nil, err
 	}
@@ -232,7 +278,7 @@ func (r *SurveyRepository) ListActive(limit, offset uint) (surveys []model.Surve
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) ListResults(limit, offset uint) (surveys []model.Survey, err error) {
 	// Query with joins
-	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL AND NOT date('now') BETWEEN `surveys`.`date_start` AND `surveys`.`date_end` ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY c.id", limit, offset).Rows()
+	rows, err := r.db.Raw("SELECT s.id, s.user_refer, s.subject, s.description, s.date_start, s.date_end, q.id AS question_id, q.value AS question_value, c.id AS choice_id, c.value AS choice_value, v.id AS vote_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL AND `surveys`.`confirm_status` = 'confirmed' AND NOT date('now') BETWEEN `surveys`.`date_start` AND `surveys`.`date_end` ORDER BY `surveys`.`id` LIMIT ? OFFSET ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id LEFT JOIN votes AS v ON v.choice_refer = c.id ORDER BY c.id", limit, offset).Rows()
 	if err != nil {
 		return nil, err
 	}

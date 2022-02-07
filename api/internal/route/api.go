@@ -76,29 +76,12 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			routev1.SetupUserRoute(users, userCont)
 		}
 
-		// employees
-		employees := v1.Group("/employees")
-		{
-			// auth middleware
-			employees.Use(authMiddlewareHandler)
-
-			employeeRepo := dic.InitEmployeeRepository(db)
-			employeeService := dic.InitEmployeeService(employeeRepo)
-
-			// isEmployee middleware
-			isEmployeeMiddlewareHandler := middleware.NewIsEmployeeMiddleware(logger, employeeService).Handler()
-			employees.Use(isEmployeeMiddlewareHandler)
-
-			// route setup
-			employeeController := dic.InitEmployeeController(employeeService, logger)
-			routev1.SetupEmployeeRoute(employees, employeeController)
-		}
-
-		// surveys
+		// survey related routes
 		surveyRepo := dic.InitSurveyRepository(db, logger)
 		surveyService := dic.InitSurveyService(surveyRepo)
 		surveyController := dic.InitSurveyController(surveyService, userService, logger)
 
+		// single survey
 		survey := v1.Group("/survey")
 		{
 			// auth middleware
@@ -108,10 +91,33 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			routev1.SetupSurveyRoute(survey, surveyController)
 		}
 
-		// survey
+		// multiple survey
 		surveys := v1.Group("/surveys")
 		{
 			routev1.SetupSurveysRoute(surveys, surveyController)
+
+			surveysAdmin := surveys.Group("admin")
+			routev1.SetupAdminSurveysRoute(surveysAdmin, surveyController)
+		}
+
+		// employees
+		admin := v1.Group("/admin")
+		{
+			// auth middleware
+			admin.Use(authMiddlewareHandler)
+
+			employeeRepo := dic.InitEmployeeRepository(db)
+			employeeService := dic.InitEmployeeService(employeeRepo)
+
+			// isEmployee middleware
+			isEmployeeMiddlewareHandler := middleware.NewIsEmployeeMiddleware(logger, employeeService).Handler()
+			admin.Use(isEmployeeMiddlewareHandler)
+
+			adminSurveys := admin.Group("/surveys")
+			routev1.SetupAdminSurveysRoute(adminSurveys, surveyController)
+
+			adminSurvey := admin.Group("/survey")
+			routev1.SetupAdminSurveyRoute(adminSurvey, surveyController)
 		}
 
 		// FAKER

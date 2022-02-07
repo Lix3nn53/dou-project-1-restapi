@@ -18,8 +18,10 @@ import (
 type SurveyControllerInterface interface {
 	ChoiceVoters(c *gin.Context)
 	Vote(c *gin.Context)
+	ListWaitingConfirmation(c *gin.Context)
 	ListActive(c *gin.Context)
 	ListResults(c *gin.Context)
+	CountWaitingConfirmation(c *gin.Context)
 	CountActive(c *gin.Context)
 	CountResults(c *gin.Context)
 	Info(c *gin.Context)
@@ -128,6 +130,18 @@ func (uc *SurveyController) Vote(c *gin.Context) {
 }
 
 // Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) CountWaitingConfirmation(c *gin.Context) {
+	result, err := uc.service.CountWaitingConfirmation()
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
 func (uc *SurveyController) CountActive(c *gin.Context) {
 	result, err := uc.service.CountActive()
 	if err != nil {
@@ -147,6 +161,40 @@ func (uc *SurveyController) CountResults(c *gin.Context) {
 		appError.Respond(c, http.StatusBadRequest, err)
 		return
 	}
+
+	c.JSON(http.StatusOK, result)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) ListWaitingConfirmation(c *gin.Context) {
+	limit := c.DefaultQuery("limit", "5")
+	offset := c.DefaultQuery("offset", "0")
+
+	limitInt64, err := strconv.ParseUint(limit, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	offsetInt64, err := strconv.ParseUint(offset, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	limitInt := uint(limitInt64)
+	offsetInt := uint(offsetInt64)
+
+	result, err := uc.service.ListWaitingConfirmation(limitInt, offsetInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	// uc.logger.Infof("%#v", result)
 
 	c.JSON(http.StatusOK, result)
 }
