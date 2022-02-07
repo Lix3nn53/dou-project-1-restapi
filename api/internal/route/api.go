@@ -110,7 +110,7 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 			employeeService := dic.InitEmployeeService(employeeRepo)
 
 			// isEmployee middleware
-			isEmployeeMiddlewareHandler := middleware.NewIsEmployeeMiddleware(logger, employeeService).Handler()
+			isEmployeeMiddlewareHandler := middleware.NewIsEmployeeMiddleware(logger, employeeService, userService).Handler()
 			admin.Use(isEmployeeMiddlewareHandler)
 
 			adminSurveys := admin.Group("/surveys")
@@ -125,6 +125,13 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		// surveyFaker.Generate(10)
 		// userFaker := faker.NewUserFaker(db, logger)
 		// userFaker.Generate(50)
+
+		// MAKE EMPLOYEE
+		// employee := &model.Employee{
+		// 	UserRefer: 1,
+		// }
+
+		// db.Create(&employee)
 	}
 
 	return r

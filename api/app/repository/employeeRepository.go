@@ -39,7 +39,7 @@ func (r *EmployeeRepository) FindByID(id string) (employee *model.Employee, err 
 
 // FindByUserId implements the method to find a employee from the store
 func (r *EmployeeRepository) FindByUserId(userId uint) (employee *model.Employee, err error) {
-	result := r.db.First(employee, "UserRefer = ?", userId)
+	result := r.db.First(&employee, "user_refer = ?", userId)
 
 	if err := result.Error; err != nil {
 		return nil, err
