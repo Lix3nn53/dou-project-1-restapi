@@ -16,6 +16,7 @@ import (
 
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
+	Confirm(c *gin.Context)
 	ChoiceVoters(c *gin.Context)
 	Vote(c *gin.Context)
 	ListWaitingConfirmation(c *gin.Context)
@@ -65,6 +66,31 @@ func (uc *SurveyController) ChoiceVoters(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, voters)
+}
+
+type UpdateConfirmStatusBody struct {
+	SurveyID uint                `binding:"required"`
+	Status   model.ConfirmStatus `binding:"required"`
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) Confirm(c *gin.Context) {
+	var requestBody UpdateConfirmStatusBody
+
+	if err := c.ShouldBindJSON(&requestBody); err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	err := uc.service.UpdateConfirmStatus(requestBody.SurveyID, requestBody.Status)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 type VoteRequestBody struct {

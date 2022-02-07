@@ -8,7 +8,7 @@ import (
 
 // Surveys route that does not require auth
 func SetupAdminSurveyRoute(surveys *gin.RouterGroup, c controller.SurveyControllerInterface) *gin.RouterGroup {
-	// surveys.POST("/confirm", c.Confirm)
+	surveys.POST("/confirm", c.Confirm)
 
 	return surveys
 }

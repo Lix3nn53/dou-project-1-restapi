@@ -7,6 +7,7 @@ import (
 
 //SurveyServiceInterface define the survey service interface methods
 type SurveyServiceInterface interface {
+	UpdateConfirmStatus(surveyID uint, status model.ConfirmStatus) (err error)
 	ChoiceVotersInfo(choiceID uint) (voters []model.UserReduced, err error)
 	Vote(userID, surveyID uint, votes []uint) (created []model.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
@@ -33,6 +34,10 @@ func NewSurveyService(surveyRepo repository.SurveyRepositoryInterface) SurveySer
 	return &SurveyService{
 		surveyRepo,
 	}
+}
+
+func (s *SurveyService) UpdateConfirmStatus(surveyID uint, status model.ConfirmStatus) (err error) {
+	return s.surveyRepo.UpdateByID(surveyID, model.Survey{ConfirmStatus: status})
 }
 
 func (s *SurveyService) ChoiceVotersInfo(choiceID uint) (voters []model.UserReduced, err error) {
