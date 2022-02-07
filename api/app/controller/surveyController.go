@@ -16,6 +16,7 @@ import (
 
 //SurveyControllerInterface define the survey controller interface methods
 type SurveyControllerInterface interface {
+	GetConfirmed(c *gin.Context)
 	Confirm(c *gin.Context)
 	ChoiceVoters(c *gin.Context)
 	Vote(c *gin.Context)
@@ -291,6 +292,28 @@ func (uc *SurveyController) ListResults(c *gin.Context) {
 	// uc.logger.Infof("%#v", result)
 
 	c.JSON(http.StatusOK, result)
+}
+
+// Find implements the method to handle the service to find a survey by the primary key
+func (uc *SurveyController) GetConfirmed(c *gin.Context) {
+	surveyID := c.Param("survey")
+	surveyIDInt64, err := strconv.ParseUint(surveyID, 10, 32)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	surveyIDInt := uint(surveyIDInt64)
+
+	confirmed, err := uc.service.GetConfirmed(surveyIDInt)
+	if err != nil {
+		uc.logger.Error(err.Error())
+		appError.Respond(c, http.StatusBadRequest, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, confirmed)
 }
 
 // Find implements the method to handle the service to find a survey by the primary key

@@ -16,6 +16,7 @@ type SurveyRepository struct {
 
 //SurveyRepositoryInterface define the survey repository interface methods
 type SurveyRepositoryInterface interface {
+	GetConfirmed(surveyID uint) (confirmStatus model.ConfirmStatus, err error)
 	ChoiceVotersInfo(choiceID uint) (voters []model.UserReduced, err error)
 	Vote(userID, surveyID uint, votes []uint) (created []model.Vote, err error)
 	VotedAlready(userID, surveyID uint) (voted bool, err error)
@@ -40,6 +41,25 @@ func NewSurveyRepository(db *storage.DbStore, logger logger.Logger) SurveyReposi
 		db,
 		logger,
 	}
+}
+
+// FindByID implements the method to find a survey from the store
+func (r *SurveyRepository) GetConfirmed(surveyID uint) (confirmStatus model.ConfirmStatus, err error) {
+	rows, err := r.db.Raw("SELECT s.confirm_status FROM surveys AS s WHERE s.id = ?", surveyID).Rows()
+	if err != nil {
+		return confirmStatus, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		err = rows.Scan(&confirmStatus)
+		if err != nil {
+			return confirmStatus, err
+		}
+	}
+
+	return confirmStatus, nil
 }
 
 // FindByID implements the method to find a survey from the store
