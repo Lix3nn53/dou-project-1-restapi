@@ -209,7 +209,7 @@ func (r *SurveyRepository) CountWaitingConfirmation() (count int, err error) {
 
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) CountActive() (count int, err error) {
-	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end`").Rows()
+	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` AS s WHERE `s`.`deleted_at` IS NULL AND `s`.`confirm_status` = 'confirmed' AND date('now') BETWEEN `s`.`date_start` AND `s`.`date_end`").Rows()
 	if err != nil {
 		return -1, err
 	}
@@ -228,7 +228,7 @@ func (r *SurveyRepository) CountActive() (count int, err error) {
 
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) CountResults() (count int, err error) {
-	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL AND NOT date('now') BETWEEN `surveys`.`date_start` AND `surveys`.`date_end`").Rows()
+	rows, err := r.db.Raw("SELECT count(1) FROM `surveys` WHERE `surveys`.`deleted_at` IS NULL AND `surveys`.`confirm_status` = 'confirmed' AND NOT date('now') BETWEEN `surveys`.`date_start` AND `surveys`.`date_end`").Rows()
 	if err != nil {
 		return -1, err
 	}
