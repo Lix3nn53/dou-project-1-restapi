@@ -1,7 +1,6 @@
 package route
 
 import (
-	"dou-survey/faker"
 	"dou-survey/internal/dic"
 	"dou-survey/internal/logger"
 	"dou-survey/internal/middleware"
@@ -122,8 +121,8 @@ func Setup(db *storage.DbStore, dbCache *storage.DbCache, logger logger.Logger) 
 		}
 
 		// FAKER
-		surveyFaker := faker.NewSurveyFaker(db, logger)
-		surveyFaker.Generate(10)
+		// surveyFaker := faker.NewSurveyFaker(db, logger)
+		// surveyFaker.Generate(10)
 		// userFaker := faker.NewUserFaker(db, logger)
 		// userFaker.Generate(50)
 

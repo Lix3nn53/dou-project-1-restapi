@@ -91,6 +91,14 @@ func (r *SurveyRepository) ChoiceVotersInfo(choiceID uint) (voters []model.UserR
 
 // FindByID implements the method to find a survey from the store
 func (r *SurveyRepository) Vote(userID, surveyID uint, votes []uint) (created []model.Vote, err error) {
+	confirmStatus, err := r.GetConfirmed(surveyID)
+	if err != nil {
+		return nil, err
+	}
+	if confirmStatus != "confirmed" {
+		return nil, errors.New("survey must get confirmed before you can vote")
+	}
+
 	rows, err := r.db.Raw("SELECT q.id as question_id, c.id AS choice_id FROM (SELECT * FROM `surveys` WHERE `surveys`.`id` = ?) AS s JOIN questions AS q ON q.survey_refer = s.id JOIN choices AS c ON c.question_refer = q.id ORDER BY c.id", surveyID).Rows()
 	if err != nil {
 		return nil, err
